@@ -7,22 +7,22 @@ const Court = sequelize.define('Court', {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  type_of_wall: {
+  wall_type: {
     type: DataTypes.ENUM('acrylic', 'cement'),
     allowNull: false,
   },
-  is_indoor: {
+  court_type: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
   },
-  availability: {
+  /*availability: {
     type: DataTypes.JSON,
     allowNull: false,
-  },
+  },*/
 });
 
 // Relación uno a muchos: Un club puede tener muchas canchas
-Court.belongsTo(Club);
-Club.hasMany(Court);
+Court.belongsTo(Club, { foreignKey: 'clubId' });
+Club.hasMany(Court, { foreignKey: 'clubId' });
 
 module.exports = Court;

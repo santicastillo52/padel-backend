@@ -23,10 +23,20 @@ const CourtSchedule = sequelize.define('CourtSchedule', {
     type: DataTypes.TIME,
     allowNull: false,
   },
+  courtId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: Court,
+      key: 'id',
+    },
+    onDelete: 'CASCADE', // Eliminar horarios si se elimina la cancha
+    field: 'courtId'
+  },
 });
 
 // Relaciones
-CourtSchedule.belongsTo(Court);
-Court.hasMany(CourtSchedule);
+CourtSchedule.belongsTo(Court, { foreignKey: 'courtId' });
+Court.hasMany(CourtSchedule, { foreignKey: 'courtId' });
+
 
 module.exports = CourtSchedule;

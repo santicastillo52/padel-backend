@@ -22,7 +22,13 @@ const User = sequelize.define('User', {
   position: {
     type: DataTypes.ENUM('reves', 'drive', 'both'),
     allowNull: true,
-  },
+  }  
+
+  
+}, 
+{
+  tableName: 'Users',
+  timestamps: false, // 🔹 Desactiva los timestamps
 });
 
 module.exports = User;
