@@ -15,8 +15,9 @@ const Image = sequelize.define('Image', {
 });
 
 // Relación: Una imagen puede pertenecer a un court o a un club
-Image.belongsTo(Court);
-Image.belongsTo(Club);
+Image.belongsTo(Court, { foreignKey: { allowNull: true } });
+Image.belongsTo(Club, { foreignKey: { allowNull: true } });
+
 
 Court.hasMany(Image);
 Club.hasMany(Image);
