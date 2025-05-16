@@ -1,46 +1,31 @@
+// src/seeders/XXXXXX-users.js (o como se llame tu archivo)
 'use strict';
 
-/** @type {import('sequelize-cli').Migration} */
+const bcrypt = require('bcrypt');
 
 module.exports = {
-  async up (queryInterface, Sequelize) {
-    /**
-     * Add seed commands here.
-     *
-     * Example:
-     * await queryInterface.bulkInsert('People', [{
-     *   name: 'John Doe',
-     *   isBetaMember: false
-     * }], {});
-    */
-   await queryInterface.bulkInsert('Users', [
+  up: async (queryInterface, Sequelize) => {
+    const hashedPassword = await bcrypt.hash('123456', 10); // contraseña real
+
+    return queryInterface.bulkInsert('Users', [
       {
         name: 'Admin Owner',
         email: 'admin@example.com',
-        password: 'hashed_password_here',
+        password: hashedPassword,
         role: 'admin',
-        position: 'both',
-        
+        position: 'both'
       },
       {
         name: 'Padel Player',
         email: 'player@example.com',
-        password: 'hashed_password_here',
+        password: hashedPassword, 
         role: 'client',
-        position: 'backhand',
-      
-      },
+        position: 'backhand'
+      }
     ]);
   },
 
-  async down (queryInterface, Sequelize) {
-    /**
-     * Add commands to revert seed here.
-     *
-     * Example:
-     * await queryInterface.bulkDelete('People', null, {});
-     * 
-     */
-    await queryInterface.bulkDelete('Users', null, {});
+  down: async (queryInterface, Sequelize) => {
+    return queryInterface.bulkDelete('Users', null, {});
   }
 };

@@ -27,7 +27,7 @@ const getClubsFromDB = async (filters = {}) => {
   }
   // Agrega otros filtros opcionales si lo necesitas
 
-  return await Club.findAll({ where });
+  return await Club.findAll({ where});
 }
 
 module.exports = { getClubsFromDB };

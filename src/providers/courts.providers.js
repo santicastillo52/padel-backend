@@ -1,3 +1,4 @@
+const Club = require('../models/club');
 const Court = require('../models/Court');
 const { Op } = require('sequelize');
 /**
@@ -19,6 +20,6 @@ getCourtsFromDB = async (filters = {}) => {
 
   // Agrega otros filtros opcionales si lo necesitas
 
-  return await Court.findAll({ where });
+  return await Court.findAll({ where, include: { model: Club, attributes: ['name']} });
 }
 module.exports = { getCourtsFromDB };

@@ -7,7 +7,7 @@ module.exports = {
         name: 'Central Padel Court',
         wall_type: 'acrylic',
         court_type: 'indoor',
-        clubId: 1,
+        clubId: 2,
         createdAt: new Date(),
         updatedAt: new Date(),
       }

@@ -2,6 +2,7 @@
 const userService = require('../services/users.services');
 
 getAllUsers = async (req, res) => {
+  
   try {
     const filters = req.query;
     console.log('controller', filters);

@@ -1,6 +1,11 @@
 const imageProvider = require('../providers/images.providers');
 
 
+const fetchAllImages = async () => {
+  const images = await imageProvider.getImagesFromDb();
+  return images;
+};
+
 const handleUpload = async (req) => {
   const { type, courtId, clubId } = req.body;
 
@@ -27,4 +32,4 @@ const handleUpload = async (req) => {
   return newImage;
 };
 
-module.exports = { handleUpload };
+module.exports = { fetchAllImages, handleUpload };

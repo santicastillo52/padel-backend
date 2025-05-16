@@ -7,7 +7,7 @@ module.exports = {
         day_of_week: 'monday',
         start_time: '09:00',
         end_time: '10:00',
-        courtId: 1,
+        courtId: 5,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -15,7 +15,7 @@ module.exports = {
         day_of_week: 'monday',
         start_time: '10:00',
         end_time: '11:00',
-        courtId: 1,
+        courtId: 5,
         createdAt: new Date(),
         updatedAt: new Date(),
       }

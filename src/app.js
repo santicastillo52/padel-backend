@@ -6,11 +6,16 @@ const clubsRoutes = require('./routes/clubs.routes.js');
 const bookingsRoutes = require('./routes/bookings.routes.js');
 const courtSchedulesRoutes = require('./routes/courtsSchedules.routes.js');
 const courtsRoutes = require('./routes/courts.routes.js');
-const  imagesRoutes = require('./routes/images.routes.js'); // Importa las rutas de imágenes
+const imagesRoutes = require('./routes/images.routes.js'); 
+const loginRoutes = require('./routes/auth.routes.js');
 const path = require('path');
+const passport = require('passport');
+
+require('./config/passport')(passport);
 
 const app = express();
 app.use(express.json());
+app.use(passport.initialize());
 
 const startApp = async () => {
   try {
@@ -20,6 +25,8 @@ const startApp = async () => {
       res.send("Hello World!");
     });
 
+
+    app.use(loginRoutes)
     app.use(userRoutes);
     app.use(clubsRoutes);
     app.use(bookingsRoutes);
