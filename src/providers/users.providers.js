@@ -40,5 +40,9 @@ const getUserByIdFromDB = async (userId) => {
   });
 };
 
+const createUserInDB = async (userData) => {
+ 
+  return await User.create(userData);
+};
 
-module.exports = { getUsersFromDB, getUserByIdFromDB};    
+module.exports = { getUsersFromDB, getUserByIdFromDB, createUserInDB };    

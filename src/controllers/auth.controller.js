@@ -1,5 +1,6 @@
 const passport = require('passport');
-const jwt = require('jsonwebtoken');
+const jwt = require('../providers/jwt.provider');
+const authService = require('../services/auth.services');
 
 
 
@@ -9,11 +10,11 @@ const login = async (req, res, next) => {
     if (!user) return res.status(401).json({ message: 'Authentication failed' });
 
     
-    const token = jwt.sign(
-      { id: user.id, name: user.name, role: user.role },
-      'tu_secreto_super_seguro',
-      { expiresIn: '2h' }
-    );
+      const token = jwt.generateToken({
+      id: user.id,
+      name: user.name,
+      role: user.role,
+    });
 
     return res.json({
       message: 'Authentication successful',
@@ -23,7 +24,14 @@ const login = async (req, res, next) => {
   })(req, res, next);
 };
 
-
+const register = async (req, res) => {
+  try {
+    const result =  await authService.createUser(req.body);
+    res.status(201).json(result)
+    } catch (error) {
+      console.error('Error registering user:', error);
+  }
+}
 module.exports = {
-    login
+    login, register
 };

@@ -8,4 +8,6 @@ fetchUserById = async (userId) => {
     return await userProvider.getUserByIdFromDB(userId);
 }
 
+
+
 module.exports = { fetchAllUsers, fetchUserById };
