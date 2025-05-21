@@ -4,4 +4,8 @@ fetchAllUsers = async (filters) => {
     return await userProvider.getUsersFromDB(filters);
 }
 
-module.exports = { fetchAllUsers };
+fetchUserById = async (userId) => {
+    return await userProvider.getUserByIdFromDB(userId);
+}
+
+module.exports = { fetchAllUsers, fetchUserById };

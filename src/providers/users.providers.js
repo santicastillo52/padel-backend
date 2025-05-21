@@ -1,5 +1,6 @@
-const User = require('../models/User'); 
+const {User, Club} = require('../models'); 
 const { Op } = require('sequelize');
+
 /**
  * 
  * @param {Object} filters - Filtros para buscar usuarios.
@@ -24,4 +25,20 @@ const getUsersFromDB = async (filters = {}) => {
   return await User.findAll({ where });
 };
 
-module.exports = { getUsersFromDB };    
+/**
+ *  
+ * @param {*} userId 
+ * @returns 
+ */
+
+const getUserByIdFromDB = async (userId) => {
+  return await User.findByPk(userId, {
+    include: {
+      model: Club, 
+      attributes: ['id']
+    }
+  });
+};
+
+
+module.exports = { getUsersFromDB, getUserByIdFromDB};    

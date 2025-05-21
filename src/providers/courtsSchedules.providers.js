@@ -1,5 +1,6 @@
-const courtsSchedules = require("../models/CourtSchedule");
-const { Op } = require("sequelize");
+const { CourtSchedule } = require('../models');
+
+const { Op } = require('sequelize');
 /**
  *  @param {Object} filters - Filtros para buscar horarios de canchas.
  *  @param {string} filters.date - Fecha del horario.
@@ -27,7 +28,7 @@ const getCourtsSchedulesFromDB = async (filters = {}) => {
     where.endTime = { [Op.lte]: filters.endTime };
   }
 
-  return await courtsSchedules.findAll({ where });
+  return await CourtSchedule.findAll({ where });
 };
 
 module.exports = { getCourtsSchedulesFromDB };

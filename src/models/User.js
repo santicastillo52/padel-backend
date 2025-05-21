@@ -1,7 +1,7 @@
-const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = require('../config/database'); // o la ruta a tu instancia de sequelize
 
-const User = sequelize.define('User', {
+
+module.exports = (sequelize,DataTypes) => { 
+  const User = sequelize.define('User', {
   name: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -30,5 +30,10 @@ const User = sequelize.define('User', {
   tableName: 'Users',
   timestamps: false, // 🔹 Desactiva los timestamps
 });
-
-module.exports = User;
+ User.associate = (models) => {
+    User.hasMany(models.Club, {
+      foreignKey: 'UserId'
+    });
+  };
+return User;
+}

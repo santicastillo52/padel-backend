@@ -1,5 +1,6 @@
 // src/app.js
 const express = require("express");
+const cors = require("cors");
 const sequelize = require("./config/database");
 const userRoutes = require('./routes/users.routes.js'); 
 const clubsRoutes = require('./routes/clubs.routes.js');
@@ -25,7 +26,7 @@ const startApp = async () => {
       res.send("Hello World!");
     });
 
-
+    app.use(cors());
     app.use(loginRoutes)
     app.use(userRoutes);
     app.use(clubsRoutes);

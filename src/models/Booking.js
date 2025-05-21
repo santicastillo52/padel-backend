@@ -1,25 +1,20 @@
-const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
-const User = require('./User');
-const Court = require('./Court');
-const CourtSchedule = require('./CourtSchedule.js');
 
-const Booking = sequelize.define('Booking', {
+
+module.exports = (sequelize,DataTypes) => 
+  { const Booking = sequelize.define('Booking', {
   date: {
     type: DataTypes.DATEONLY,
     allowNull: false,
   },
 });
 
-// Relaciones
-Booking.belongsTo(User);
-User.hasMany(Booking);
+ Booking.associate = (models) => {
+    Booking.belongsTo(models.User);
+    Booking.belongsTo(models.Court);
+    Booking.belongsTo(models.CourtSchedule);
+  };
 
-Booking.belongsTo(Court);
-Court.hasMany(Booking);
+return Booking;
 
-Booking.belongsTo(CourtSchedule);
-CourtSchedule.hasMany(Booking);
-
-module.exports = Booking;
+}
 

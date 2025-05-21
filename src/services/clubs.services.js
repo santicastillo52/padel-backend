@@ -6,4 +6,10 @@ fetchAllClubs = async (filters) => {
     return await clubProvider.getClubsFromDB(filters);
 }
 
-module.exports = { fetchAllClubs };
+fetchOneClub = async (id) => {
+    return await clubProvider.getOneClubFromDB(id);
+}
+fetchMyClub = async (id) => {
+    return await clubProvider.getMyClubFromDB(id);
+}
+module.exports = { fetchAllClubs, fetchOneClub, fetchMyClub };

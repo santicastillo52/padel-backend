@@ -3,7 +3,6 @@ const clubsService = require('../services/clubs.services');
 getAllClubs = async (req, res) => { 
     try {
         const filters = req.query;
-        console.log('controller', filters.name);
         const clubs = await clubsService.fetchAllClubs(filters);
         
         res.status(200).json(clubs);
@@ -12,5 +11,35 @@ getAllClubs = async (req, res) => {
         res.status(500).json({ message: 'Error retrieving clubs' });
     }
 }
+getOneClub = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const club = await clubsService.fetchOneClub(id);
+        
+        if (!club) {
+            return res.status(404).json({ message: 'Club not found' });
+        }
+        
+        res.status(200).json(club);
+    } catch (error) {
+        console.error('Error fetching club:', error);
+        res.status(500).json({ message: 'Error retrieving club' });
+    }
+}
 
-module.exports = {getAllClubs};
+getMyClub = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const club = await clubsService.fetchMyClub(id);
+        
+        if (!club) {
+            return res.status(404).json({ message: 'Club not found' });
+        }
+        
+        res.status(200).json(club);
+    } catch (error) {
+        console.error('Error fetching club:', error);
+        res.status(500).json({ message: 'Error retrieving club' });
+    }
+}
+module.exports = {getAllClubs, getOneClub, getMyClub};

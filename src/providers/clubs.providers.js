@@ -1,5 +1,7 @@
-const Club = require('../models/Club');   
+const {Club, Court} = require('../models');   
+
 const { Op } = require('sequelize');
+
 /**
  * Obtiene clubes de la base de datos según los filtros proporcionados.
  * @param {Object} filters - Filtros para buscar clubes.
@@ -27,7 +29,44 @@ const getClubsFromDB = async (filters = {}) => {
   }
   // Agrega otros filtros opcionales si lo necesitas
 
-  return await Club.findAll({ where});
+  return await Club.findAll({ where, include: {model: Court, attributes: ['name', 'wall_type', 'court_type']} });
 }
 
-module.exports = { getClubsFromDB };
+/**
+ * Obtiene un club específico de la base de datos por su ID.
+ * @param {number} id - ID del club a buscar.
+ * @returns {Promise<Object>} - Club encontrado.
+ * @throws {Error} - Si no se encuentra el club o si ocurre un error al obtenerlo.
+ */
+
+const getOneClubFromDB = async (id) => {
+  const club = await Club.findOne({
+    where: { id },
+    include: {model: Court, attributes: ['name', 'wall_type', 'court_type']}
+  }); 
+
+  if (!club) {
+    throw new Error('Club not found');
+  }
+
+  return club;
+}
+/**
+ * Obtiene un club específico de la base de datos por su ID.
+ * @param {number} id - ID del usuario dueño del club.
+ * @returns {Promise<Object>} - Club encontrado.
+ * @throws {Error} - Si no se encuentra el club o si ocurre un error al obtenerlo.
+ */
+const getMyClubFromDB = async (id) => {
+  const club = await Club.findOne({
+    where: { UserId : id},
+    include: {model: Court, attributes: ['name', 'wall_type', 'court_type']}
+  }); 
+
+  if (!club) {
+    throw new Error('Club not found');
+  }
+
+  return club;
+}
+module.exports = { getClubsFromDB, getOneClubFromDB, getMyClubFromDB };

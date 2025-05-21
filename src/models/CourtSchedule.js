@@ -1,8 +1,7 @@
-const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
-const Court = require('./Court'); // Importamos el modelo de Court
 
-const CourtSchedule = sequelize.define('CourtSchedule', {
+
+module.exports = (sequelize, DataTypes) => {
+ const CourtSchedule = sequelize.define('CourtSchedule', {
   day_of_week: {
     type: DataTypes.ENUM(
       'monday',
@@ -24,19 +23,14 @@ const CourtSchedule = sequelize.define('CourtSchedule', {
     allowNull: false,
   },
   courtId: {
-    type: DataTypes.INTEGER,
-    references: {
-      model: Court,
-      key: 'id',
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
-    onDelete: 'CASCADE', // Eliminar horarios si se elimina la cancha
-    field: 'courtId'
-  },
 });
-
-// Relaciones
-CourtSchedule.belongsTo(Court, { foreignKey: 'courtId' });
-Court.hasMany(CourtSchedule, { foreignKey: 'courtId' });
-
-
-module.exports = CourtSchedule;
+CourtSchedule.associate = (models) => {
+    CourtSchedule.belongsTo(models.Court, { foreignKey: 'courtId' });
+    models.Court.hasMany( CourtSchedule, { foreignKey: 'courtId' });
+    CourtSchedule.hasMany(models.Booking);
+  };
+return CourtSchedule;
+}
