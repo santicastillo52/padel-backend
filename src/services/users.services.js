@@ -8,6 +8,8 @@ fetchUserById = async (userId) => {
     return await userProvider.getUserByIdFromDB(userId);
 }
 
+updateUser = async (userId, userData) => {
+    return await userProvider.updateUserInDB(userId, userData);
+};
 
-
-module.exports = { fetchAllUsers, fetchUserById };
+module.exports = { fetchAllUsers, fetchUserById, updateUser };

@@ -27,7 +27,7 @@ const getUsersFromDB = async (filters = {}) => {
 
 /**
  *  
- * @param {*} userId 
+ * @param {*} userId - ID del usuario a buscar.
  * @returns 
  */
 
@@ -41,8 +41,15 @@ const getUserByIdFromDB = async (userId) => {
 };
 
 const createUserInDB = async (userData) => {
- 
   return await User.create(userData);
 };
 
-module.exports = { getUsersFromDB, getUserByIdFromDB, createUserInDB };    
+const updateUserInDB = async (userId, userData) => {
+  const user = await User.findByPk(userId);
+  if (!user) {
+    throw new Error('User not found');
+  }
+  return await user.update(userData);
+};
+
+module.exports = { getUsersFromDB, getUserByIdFromDB, createUserInDB, updateUserInDB };    

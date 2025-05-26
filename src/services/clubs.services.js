@@ -12,4 +12,13 @@ fetchOneClub = async (id) => {
 fetchMyClub = async (id) => {
     return await clubProvider.getMyClubFromDB(id);
 }
-module.exports = { fetchAllClubs, fetchOneClub, fetchMyClub };
+
+createClub = async (clubData) => {
+      console.log("ID USER : " + clubData.UserId)
+    const existingClub = await clubProvider.findClubByUserId(clubData.UserId);
+    if (existingClub) throw new Error('Este usuario ya tiene un club');
+
+    return await clubProvider.createClubInDB(clubData);
+}
+
+module.exports = { fetchAllClubs, fetchOneClub, fetchMyClub, createClub };

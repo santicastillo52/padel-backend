@@ -42,4 +42,17 @@ getMyClub = async (req, res) => {
         res.status(500).json({ message: 'Error retrieving club' });
     }
 }
-module.exports = {getAllClubs, getOneClub, getMyClub};
+
+createClub = async (req, res) => {
+    try {
+        const clubData = req.body;
+        const newClub = await clubsService.createClub(clubData);
+        
+        res.status(201).json(newClub);
+    } catch (error) {
+        console.error('Error creating club:', error);
+        res.status(500).json({ message: 'Error creating club' });
+    }
+}
+
+module.exports = {getAllClubs, getOneClub, getMyClub, createClub};

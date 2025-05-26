@@ -69,4 +69,25 @@ const getMyClubFromDB = async (id) => {
 
   return club;
 }
-module.exports = { getClubsFromDB, getOneClubFromDB, getMyClubFromDB };
+
+/**
+ * 
+
+ * * Crea un nuevo club en la base de datos.
+ * @param {Object} clubData - Datos del club a crear.
+ * @param {string} clubData.name - Nombre del club.
+ * @param {string} clubData.location - Ubicación del club.
+ * @param {number} clubData.UserId - ID del usuario dueño del club.
+ * @param {Array} clubData.Courts - Lista de canchas asociadas al club.
+ * @returns 
+ */
+const createClubInDB = async (clubData) => {
+  const newClub = await Club.create(clubData);
+  return newClub;
+}
+
+const findClubByUserId = async (userId) => {
+  return await Club.findOne({ where: { UserId: userId } });
+};
+
+module.exports = { getClubsFromDB, getOneClubFromDB, getMyClubFromDB, createClubInDB, findClubByUserId };

@@ -1,10 +1,11 @@
-const { User } = require('../models');
-const bcrypt = require('../providers/bcrypt.provider');
-const jwt = require('../providers/jwt.provider');
-const userProvider = require('../providers/users.providers');
+const { User } = require("../models");
+const bcrypt = require("../providers/bcrypt.provider");
+const jwt = require("../providers/jwt.provider");
+const userProvider = require("../providers/users.providers");
+
 const createUser = async ({ name, email, password, role, position }) => {
   const existingUser = await User.findOne({ where: { email } });
-  if (existingUser) throw new Error('El usuario ya existe');
+  if (existingUser) throw new Error("El usuario ya existe");
 
   const hashedPassword = await bcrypt.hashPassword(password);
 
@@ -13,15 +14,15 @@ const createUser = async ({ name, email, password, role, position }) => {
     email,
     password: hashedPassword,
     role,
-    position
+    position,
   });
-const token = jwt.generateToken({
+  const token = jwt.generateToken({
     id: newUser.id,
     name: newUser.name,
     role: newUser.role,
   });
   return {
-    message: 'Usuario registrado correctamente',
+    message: "Usuario registrado correctamente",
     token,
     user: {
       id: newUser.id,
@@ -33,4 +34,4 @@ const token = jwt.generateToken({
   };
 };
 
-  module.exports = { createUser };
+module.exports = { createUser };
