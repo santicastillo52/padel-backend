@@ -12,4 +12,16 @@ getAllCourts = async (req, res) => {
     }
 }
 
-module.exports = { getAllCourts };
+createCourts = async (req, res) => {
+    try {
+        const courtData = req.body;
+        const newCourt = await courtsService.addNewCourts(courtData);
+        
+        res.status(201).json(newCourt);
+    } catch (error) {
+        console.error('Error creating court:', error);
+        res.status(500).json({ message: 'Error creating court' });
+    }
+}
+
+module.exports = { getAllCourts, createCourts };
