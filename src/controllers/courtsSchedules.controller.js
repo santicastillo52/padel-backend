@@ -12,4 +12,16 @@ const getAllCourtsSchedules = async (req, res) => {
     }
 }
 
-module.exports = {getAllCourtsSchedules};
+const createCourtsSchedules = async (req, res) => {
+    try {
+        const newSchedule = req.body;
+        const createdSchedule = await courtsSchedulesService.createCourtsSchedules(newSchedule);
+        
+        res.status(201).json(createdSchedule);
+    } catch (error) {
+        console.error('Error creating courts schedule:', error);
+        res.status(500).json({ message: 'Error creating courts schedule' });
+    }
+}
+
+module.exports = {getAllCourtsSchedules, createCourtsSchedules};

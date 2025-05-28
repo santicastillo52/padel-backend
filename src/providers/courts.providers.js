@@ -36,19 +36,12 @@ getCourtsFromDB = async (filters = {}) => {
  * 
  */
 
-createCourtInDB = async (data, transaction) => {
+createCourtInDB = async (data, transaction)  => {
 
   const { name, wall_type, court_type, clubId } = data;
   return Court.create({ name, wall_type, court_type, clubId }, { transaction });
 };
 
-createSchedulesInDB = async (schedule, transaction) => {
-  return CourtSchedule.create({
-    day_of_week: schedule.day_of_week,
-    start_time: schedule.start_time,
-    end_time: schedule.end_time,
-    courtId: schedule.courtId,
-  }, { transaction });
-}
 
-module.exports = { createCourtInDB, getCourtsFromDB, createSchedulesInDB };
+
+module.exports = { createCourtInDB, getCourtsFromDB };

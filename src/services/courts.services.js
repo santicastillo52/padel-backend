@@ -1,5 +1,5 @@
 const courtsProvider = require('../providers/courts.providers');
-const { sequelize } = require('../models');
+const { sequelize, Court } = require('../models');
 const fetchAllCourts = async (filters) => {
     return await courtsProvider.getCourtsFromDB(filters);
 }
@@ -11,13 +11,18 @@ const addNewCourts = async (courtList) => {
     const createdCourts = [];
 
     for (const courtData of courtList) {
-      const court = await courtsProvider.createCourtInDB(courtData, t);
+      const existingCourt = await Court.findOne({
+        where: {
+          name: courtData.name,
+          clubId: courtData.clubId
+        },
+        transaction: t
+      });
 
-      if (Array.isArray(courtData.schedules)) {
-        for (const schedule of courtData.schedules) {
-          await courtsProvider.createSchedulesInDB({ ...schedule, courtId: court.id }, t);
-        }
+      if (existingCourt) {
+        throw new Error(`Ya existe una cancha con el nombre "${courtData.name}" en el club ID ${courtData.clubId}`);
       }
+      const court = await courtsProvider.createCourtInDB(courtData, t);
 
       createdCourts.push(court);
     }

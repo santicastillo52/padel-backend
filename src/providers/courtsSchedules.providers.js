@@ -31,4 +31,19 @@ const getCourtsSchedulesFromDB = async (filters = {}) => {
   return await CourtSchedule.findAll({ where });
 };
 
-module.exports = { getCourtsSchedulesFromDB };
+const createCourtsSchedulesInDB = async (scheduleData, transaction = null) => {
+  return await CourtSchedule.create(scheduleData, { transaction });
+}
+
+const findOverlappingSchedule = async ({ courtId, day_of_week, start_time, end_time }) => {
+  return await CourtSchedule.findAll({
+    where: {
+      courtId,
+      day_of_week,
+      start_time: { [Op.lt]: end_time },
+      end_time: { [Op.gt]: start_time }
+    }
+  });
+
+}
+module.exports = { getCourtsSchedulesFromDB, createCourtsSchedulesInDB, findOverlappingSchedule };
