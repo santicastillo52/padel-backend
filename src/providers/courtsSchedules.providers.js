@@ -35,14 +35,15 @@ const createCourtsSchedulesInDB = async (scheduleData, transaction = null) => {
   return await CourtSchedule.create(scheduleData, { transaction });
 }
 
-const findOverlappingSchedule = async ({ courtId, day_of_week, start_time, end_time }) => {
+const findOverlappingSchedule = async ({ courtId, day_of_week, start_time, end_time, transaction = null }) => {
   return await CourtSchedule.findAll({
     where: {
       courtId,
       day_of_week,
       start_time: { [Op.lt]: end_time },
       end_time: { [Op.gt]: start_time }
-    }
+    },
+    transaction
   });
 
 }

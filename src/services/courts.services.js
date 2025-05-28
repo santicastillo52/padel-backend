@@ -1,5 +1,6 @@
 const courtsProvider = require('../providers/courts.providers');
 const { sequelize, Court } = require('../models');
+
 const fetchAllCourts = async (filters) => {
     return await courtsProvider.getCourtsFromDB(filters);
 }
