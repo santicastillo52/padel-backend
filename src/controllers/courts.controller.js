@@ -8,7 +8,9 @@ getAllCourts = async (req, res) => {
         res.status(200).json(courts);
     } catch (error) {
         console.error('Error fetching courts:', error);
-        res.status(500).json({ message: 'Error retrieving courts' });
+        res.status(500).json({ message: 'Error retrieving courts',
+            details: error.message
+         });
     }
 }
 
@@ -20,7 +22,7 @@ createCourts = async (req, res) => {
         res.status(201).json(newCourt);
     } catch (error) {
         console.error('Error creating court:', error);
-        res.status(500).json({ message: 'Error creating court' });
+        res.status(500).json({ message: error.message || 'Error creating court'});
     }
 }
 

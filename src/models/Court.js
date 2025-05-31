@@ -15,10 +15,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
       allowNull: false,
     },
-    /*availability: {
-      type: DataTypes.JSON,
-      allowNull: false,
-    },*/
+    
   });
 
   Court.associate = (models) => {

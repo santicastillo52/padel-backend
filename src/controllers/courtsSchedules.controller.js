@@ -22,6 +22,8 @@ const createCourtsSchedules = async (req, res) => {
         console.error('Error creating courts schedule:', error);
         res.status(500).json({ message: 'Error creating courts schedule' });
     }
+
+    
 }
 
 module.exports = {getAllCourtsSchedules, createCourtsSchedules};

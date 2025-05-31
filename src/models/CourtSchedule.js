@@ -26,11 +26,17 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    status:{
+      type: DataTypes.ENUM('available', 'booked', 'maintenance'),
+      allowNull: false,
+      defaultValue: 'available',
+
+    }
 });
 CourtSchedule.associate = (models) => {
     CourtSchedule.belongsTo(models.Court, { foreignKey: 'courtId' });
     models.Court.hasMany( CourtSchedule, { foreignKey: 'courtId' });
-    CourtSchedule.hasMany(models.Booking);
+    CourtSchedule.hasMany(models.Booking, { foreignKey: 'courtScheduleId' });
   };
 return CourtSchedule;
 }

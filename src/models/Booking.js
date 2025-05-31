@@ -5,13 +5,14 @@ module.exports = (sequelize,DataTypes) =>
   date: {
     type: DataTypes.DATEONLY,
     allowNull: false,
-  },
+  }
+
 });
 
  Booking.associate = (models) => {
-    Booking.belongsTo(models.User);
-    Booking.belongsTo(models.Court);
-    Booking.belongsTo(models.CourtSchedule);
+    Booking.belongsTo(models.User, {foreignKey: 'userId'});
+    Booking.belongsTo(models.Court, {foreignKey: 'courtId'});
+    Booking.belongsTo(models.CourtSchedule, {foreignKey: 'courtScheduleId'});
   };
 
 return Booking;

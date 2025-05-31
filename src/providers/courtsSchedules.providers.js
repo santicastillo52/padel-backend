@@ -45,6 +45,11 @@ const findOverlappingSchedule = async ({ courtId, day_of_week, start_time, end_t
     },
     transaction
   });
-
 }
-module.exports = { getCourtsSchedulesFromDB, createCourtsSchedulesInDB, findOverlappingSchedule };
+
+const getOneCourtScheduleFromDB = async (data) => {
+  return await CourtSchedule.findOne({ where: { id: data.courtScheduleId } });
+}
+
+
+module.exports = { getCourtsSchedulesFromDB, createCourtsSchedulesInDB, findOverlappingSchedule, getOneCourtScheduleFromDB };

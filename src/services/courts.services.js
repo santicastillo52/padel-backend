@@ -21,7 +21,7 @@ const addNewCourts = async (courtList) => {
       });
 
       if (existingCourt) {
-        throw new Error(`Ya existe una cancha con el nombre "${courtData.name}" en el club ID ${courtData.clubId}`);
+        throw new Error(`Ya existe una cancha con el nombre "${courtData.name}" en el club.`);
       }
       const court = await courtsProvider.createCourtInDB(courtData, t);
 

@@ -12,4 +12,16 @@ getAllBookings = async (req, res) => {
     }
 }
 
-module.exports = {getAllBookings};
+createBooking = async (req, res) => {
+    try {
+        const bookingData = req.body;
+        const newBooking = await bookingsService.addBooking(bookingData);
+        
+        res.status(201).json(newBooking);
+    } catch (error) {
+        console.error('Error creating booking:', error);
+        res.status(500).json({ message: error.message || 'Error creating booking' });
+    }
+}
+
+module.exports = {getAllBookings, createBooking};
