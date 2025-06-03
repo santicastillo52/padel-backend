@@ -1,10 +1,32 @@
 const courtScheduleProvider = require("../providers/courtsSchedules.providers");
 const { Court, sequelize } = require("../models");
 
+/**
+ * Obtiene todos los horarios de canchas que cumplen con los filtros.
+ *
+ * @param {Object} [filters={}] - Filtros opcionales para la búsqueda.
+ * @returns {Promise<Array<Object>>} - Lista de horarios que coinciden con los filtros.
+ */
 const fetchAllCourtsSchedules = async (filters = {}) => {
   return await courtScheduleProvider.getCourtsSchedulesFromDB(filters);
 };
 
+/**
+ * Crea múltiples horarios para canchas dentro de una transacción, verificando solapamientos y validez.
+ *
+ * @param {Array<Object>} scheduleData - Array con datos de horarios a crear.
+ * @param {number} scheduleData[].courtId - ID de la cancha.
+ * @param {string} scheduleData[].day_of_week - Día de la semana del horario.
+ * @param {string} scheduleData[].start_time - Hora de inicio del horario (formato HH:mm:ss).
+ * @param {string} scheduleData[].end_time - Hora de fin del horario (formato HH:mm:ss).
+ *
+ * @throws {Error} - Si `scheduleData` no es un array o está vacío.
+ * @throws {Error} - Si la cancha con el `courtId` no existe.
+ * @throws {Error} - Si `start_time` no es menor que `end_time`.
+ * @throws {Error} - Si el horario se solapa con otro existente.
+ *
+ * @returns {Promise<Array<Object>>} - Lista de horarios creados exitosamente.
+ */
 const createCourtsSchedules = async (scheduleData) => {
   if (!Array.isArray(scheduleData) || scheduleData.length === 0) {
     throw new Error("scheduleData debe ser un array.");

@@ -27,15 +27,33 @@ const getBookingsFromDB = async (filters = {}) => {
   return await Booking.findAll({ where });
 };
 
-getOneBookingByScheduleAndDateFromDB = async (courtScheduleId,
-    date) => {
+/**
+ * Obtiene una reserva específica de la base de datos según el ID del horario de la cancha y la fecha.
+ * @param {*} courtScheduleId - ID del horario de la cancha.
+ * @param {*} date - Fecha de la reserva.
+ * @returns {Promise<Object>} - Reserva encontrada o null si no se encuentra.
+ */
+const getOneBookingByScheduleAndDateFromDB = async (courtScheduleId, date) => {
   return await Booking.findOne({
     where: {
-    courtScheduleId,
-    date
+      courtScheduleId,
+      date,
     },
   });
 };
+
+/**
+ * Crea una nueva reserva en la base de datos.
+ *
+ * @param {Object} bookingData - Datos de la reserva a crear.
+ * @param {number} bookingData.courtId - ID de la cancha.
+ * @param {number} bookingData.courtScheduleId - ID del horario de la cancha.
+ * @param {string} bookingData.date - Fecha de la reserva (formato YYYY-MM-DD).
+ * @param {number} bookingData.userId - ID del usuario que realiza la reserva.
+ *
+ * @returns {Promise<Object>} - Reserva creada exitosamente.
+ * @throws {Error} - Si ocurre un error al guardar la reserva en la base de datos.
+ */
 
 const createBookingInDB = async (bookingData) => {
   try {
