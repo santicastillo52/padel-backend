@@ -14,7 +14,18 @@ getAllCourts = async (req, res) => {
     }
 }
 
-createCourts = async (req, res) => {
+getCourtById = async (req, res) => {
+    try{
+        const courtId = req.params.id;
+        const court = await courtsService.fetchCourtById(courtId);
+        res.status(200).json(court);
+    }
+    catch (error) {
+        res.status(500).json({ message: error.message});
+    }
+}
+
+ createCourts = async (req, res) => {
     try {
         const courtData = req.body;
         const newCourt = await courtsService.addNewCourts(courtData);
@@ -26,4 +37,4 @@ createCourts = async (req, res) => {
     }
 }
 
-module.exports = { getAllCourts, createCourts };
+module.exports = { getAllCourts, createCourts, getCourtById };

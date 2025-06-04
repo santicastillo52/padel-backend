@@ -30,7 +30,7 @@ const getClubsFromDB = async (filters = {}) => {
 
   return await Club.findAll({
     where,
-    include: { model: Court, attributes: ["name", "wall_type", "court_type"] },
+    include: { model: Court, attributes: [ "id", "name", "wall_type", "court_type"] },
   });
 };
 
@@ -45,7 +45,7 @@ const getClubsFromDB = async (filters = {}) => {
 const getOneClubFromDB = async (id) => {
   const club = await Club.findOne({
     where: { id },
-    include: { model: Court, attributes: ["name", "wall_type", "court_type"] },
+    include: { model: Court, attributes: ["id", "name", "wall_type", "court_type"] },
   });
 
   if (!club) {
@@ -65,7 +65,7 @@ const getOneClubFromDB = async (id) => {
 const getMyClubFromDB = async (id) => {
   const club = await Club.findOne({
     where: { UserId: id },
-    include: { model: Court, attributes: ["name", "wall_type", "court_type"] },
+    include: { model: Court, attributes: ["id", "name", "wall_type", "court_type"] },
   });
 
   if (!club) {

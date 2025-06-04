@@ -1,8 +1,6 @@
 const { User, Club } = require("../models");
 const { Op } = require("sequelize");
 
-const { Op } = require("sequelize");
-
 /**
  * Busca usuarios que coincidan con los filtros.
  * @param {Object} [filters={}] - Filtros opcionales.

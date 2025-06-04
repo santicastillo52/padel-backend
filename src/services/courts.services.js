@@ -6,6 +6,20 @@ const fetchAllCourts = async (filters) => {
 };
 
 /**
+ * Devuelve una cancha específica por su ID.
+ * @param {number} courtId 
+ * @returns {Promise<Object>} - Objeto que representa la cancha encontrada.
+ */
+const fetchCourtById = async (courtId) => {
+ const court = await courtsProvider.getCourtByIdFromDB(courtId);
+  if (!court) {
+    const error = new Error(`No se encontró la cancha con ID ${courtId}`);
+    error.status = 404;
+    throw error;
+  }
+  return court;
+}
+/**
  * Agrega nuevas canchas a la base de datos.
  *
  * @param {Array<Object>} courtList - Lista de objetos que representan las canchas a agregar.
@@ -55,4 +69,4 @@ const addNewCourts = async (courtList) => {
   }
 };
 
-module.exports = { fetchAllCourts, addNewCourts };
+module.exports = { fetchAllCourts, addNewCourts, fetchCourtById };

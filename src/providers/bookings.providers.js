@@ -66,5 +66,5 @@ const createBookingInDB = async (bookingData) => {
 module.exports = {
   getBookingsFromDB,
   createBookingInDB,
-  getOneBookingByScheduleAndDateFromDB,
+  getOneBookingByScheduleAndDateFromDB
 };

@@ -1,6 +1,7 @@
 
 const {Club, Court, CourtSchedule}  = require('../models');
 const { Op } = require('sequelize');
+
 /**
  * Obtiene una lista de canchas desde la base de datos, aplicando filtros opcionales.
  *
@@ -28,6 +29,23 @@ getCourtsFromDB = async (filters = {}) => {
 };
 
 /**
+ * Obtiene una cancha específica por su ID desde la base de datos.
+ * 
+ * @param {number} courtId - ID de la cancha a buscar.
+ * @returns {Promise<Object>} - Objeto que representa la cancha encontrada, incluyendo el nombre del club asociado y los horarios de la cancha.
+ * 
+ */
+getCourtByIdFromDB = async (courtId) => {
+  return await Court.findOne({
+    where: { id: courtId },
+    include: { 
+      model: Club, attributes: ["name"],
+      model: CourtSchedule, attributes: ["id", "start_time", "end_time"]
+    },
+  });
+}
+
+/**
  * Crea una nueva cancha en la base de datos dentro de una transacción.
  *
  * @param {Object} data - Datos de la cancha a crear.
@@ -48,4 +66,4 @@ createCourtInDB = async (data, transaction)  => {
 
 
 
-module.exports = { createCourtInDB, getCourtsFromDB };
+module.exports = { createCourtInDB, getCourtsFromDB, getCourtByIdFromDB };
