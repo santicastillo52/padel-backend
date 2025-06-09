@@ -1,5 +1,6 @@
 const courtScheduleProvider = require("../providers/courtsSchedules.providers");
 const { Court, sequelize } = require("../models");
+const { parse } = require("dotenv");
 
 /**
  * Obtiene todos los horarios de canchas que cumplen con los filtros.
@@ -15,7 +16,7 @@ const fetchAllCourtsSchedules = async (filters = {}) => {
  * Crea múltiples horarios para canchas dentro de una transacción, verificando solapamientos y validez.
  *
  * @param {Array<Object>} scheduleData - Array con datos de horarios a crear.
- * @param {number} scheduleData[].courtId - ID de la cancha.
+ * @param {string} id - ID de la cancha para la cual se crearán los horarios.
  * @param {string} scheduleData[].day_of_week - Día de la semana del horario.
  * @param {string} scheduleData[].start_time - Hora de inicio del horario (formato HH:mm:ss).
  * @param {string} scheduleData[].end_time - Hora de fin del horario (formato HH:mm:ss).
@@ -27,7 +28,11 @@ const fetchAllCourtsSchedules = async (filters = {}) => {
  *
  * @returns {Promise<Array<Object>>} - Lista de horarios creados exitosamente.
  */
-const createCourtsSchedules = async (scheduleData) => {
+const createCourtsSchedules = async (scheduleData, id) => {
+ 
+  const courtId = parseInt(id);
+  console.log(typeof courtId);
+
   if (!Array.isArray(scheduleData) || scheduleData.length === 0) {
     throw new Error("scheduleData debe ser un array.");
   }
@@ -37,9 +42,11 @@ const createCourtsSchedules = async (scheduleData) => {
   const createdSchedules = [];
 
   for (const schedule of scheduleData) {
-    const { courtId, day_of_week, start_time, end_time } = schedule;
+    const { day_of_week, start_time, end_time } = schedule;
 
-    const court = await Court.findByPk(courtId, { transaction: t });
+    //Verificar que la cancha existe
+    const court = await Court.findByPk(courtId);
+
     if (!court) {
       throw new Error(`La cancha con ID: ${courtId} no existe.`);
     }
@@ -58,11 +65,16 @@ const createCourtsSchedules = async (scheduleData) => {
 
     if (overlapping.length > 0) {
       throw new Error(
-        `El horario se solapa con uno ya existente (Cancha ID ${courtId}, Día ${day_of_week})`
+        `El horario se solapa con uno ya existente (Cancha ID ${courtId}, Día ${day_of_week}, Horario ${start_time} - ${end_time})`
       );
     }
+    
+    const scheduleWithCourt = {
+    ...schedule,
+    courtId,
+  };
     const newSchedule = await courtScheduleProvider.createCourtsSchedulesInDB(
-      schedule, t
+      scheduleWithCourt, t
     );
     createdSchedules.push(newSchedule);
   }
@@ -74,4 +86,19 @@ const createCourtsSchedules = async (scheduleData) => {
   }
 };
 
-module.exports = { fetchAllCourtsSchedules, createCourtsSchedules };
+/**
+ * 
+ * @param {number} id - ID del horario a eliminar.
+ *  @throws {Error} - Si no se encuentra un horario con el ID proporcionado.
+ * @returns {Promise<Object>} - Horario eliminado.
+ */
+const deleteCourtSchedule = async (id) => {
+  const deletedSchedule = await courtScheduleProvider.deleteCourtsSchedulesFromDB(id);
+  if (!deletedSchedule) {
+    throw new Error(`No se encontró un horario con ID: ${id}`);
+  }
+  return deletedSchedule;
+}
+
+
+module.exports = { fetchAllCourtsSchedules, createCourtsSchedules, deleteCourtSchedule };

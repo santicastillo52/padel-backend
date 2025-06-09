@@ -90,9 +90,29 @@ const getOneCourtScheduleFromDB = async (data) => {
   return await CourtSchedule.findOne({ where: { id: data.courtScheduleId } });
 };
 
+/**
+ *
+ * @param {number} id - ID del horario a eliminar.
+ * @throws {Error} - Si no se encuentra el horario con el ID dado.
+ *
+ * @returns  {Promise<Object>} - Horario eliminado.
+ */
+const deleteCourtsSchedulesFromDB = async (id) => {
+  const scheduleToDelete = await CourtSchedule.findByPk(id);
+  if (!scheduleToDelete) {
+    throw new Error(`No se encontró el horario con ID: ${id}`);
+  }
+
+  await CourtSchedule.destroy({ where: { id } });
+
+  return scheduleToDelete;
+  
+};
+
 module.exports = {
   getCourtsSchedulesFromDB,
   createCourtsSchedulesInDB,
   findOverlappingSchedule,
   getOneCourtScheduleFromDB,
+  deleteCourtsSchedulesFromDB,
 };

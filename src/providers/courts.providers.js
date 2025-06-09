@@ -40,7 +40,7 @@ getCourtByIdFromDB = async (courtId) => {
     where: { id: courtId },
     include: { 
       model: Club, attributes: ["name"],
-      model: CourtSchedule, attributes: ["id", "start_time", "end_time"]
+      model: CourtSchedule, attributes: ["id", "day_of_week", "start_time", "end_time"]
     },
   });
 }

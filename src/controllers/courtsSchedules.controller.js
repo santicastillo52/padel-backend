@@ -3,7 +3,7 @@ const courtsSchedulesService = require('../services/courtsSchedules.services');
 const getAllCourtsSchedules = async (req, res) => {
     try {
         const filters = req.query;
-        const courtsSchedules = await courtsSchedulesService.fetchAllCourtsSchedules(filters);
+        const courtsSchedules = await courtsSchedulesService.fetchAllCourtsSchedules(filters,);
         
         res.status(200).json(courtsSchedules);
     } catch (error) {
@@ -14,16 +14,30 @@ const getAllCourtsSchedules = async (req, res) => {
 
 const createCourtsSchedules = async (req, res) => {
     try {
+        const courtId = req.params.id;
+       
         const newSchedule = req.body;
-        const createdSchedule = await courtsSchedulesService.createCourtsSchedules(newSchedule);
+        const createdSchedule = await courtsSchedulesService.createCourtsSchedules(newSchedule, courtId);
         
         res.status(201).json(createdSchedule);
     } catch (error) {
         console.error('Error creating courts schedule:', error);
-        res.status(500).json({ message: 'Error creating courts schedule' });
+        res.status(500).json({ message: error.message
+        });
     }
 
     
 }
 
-module.exports = {getAllCourtsSchedules, createCourtsSchedules};
+const deleteCourtSchedule = async (req, res) => {
+    try { 
+        const id = req.params.id;
+        const deletedSchedule = await courtsSchedulesService.deleteCourtSchedule(id);
+        res.status(200).json(deletedSchedule);
+    } catch (error) {
+        console.error('Error deleting courts schedule:', error);
+        res.status(500).json({ message: error.message });
+    }
+}
+
+module.exports = {getAllCourtsSchedules, createCourtsSchedules, deleteCourtSchedule};

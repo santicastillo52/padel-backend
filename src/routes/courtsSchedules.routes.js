@@ -4,6 +4,7 @@ const courtsSchedulesController = require('../controllers/courtsSchedules.contro
 const router = express.Router();
 
 router.get('/courtsSchedules', courtsSchedulesController.getAllCourtsSchedules);
-router.post('/create-schedules', courtsSchedulesController.createCourtsSchedules);
+router.post('/create-schedules/:id', courtsSchedulesController.createCourtsSchedules);
+router.delete('/delete-schedule/:id', courtsSchedulesController.deleteCourtSchedule);
 
 module.exports = router;
