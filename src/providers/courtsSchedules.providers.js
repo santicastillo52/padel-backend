@@ -114,5 +114,5 @@ module.exports = {
   createCourtsSchedulesInDB,
   findOverlappingSchedule,
   getOneCourtScheduleFromDB,
-  deleteCourtsSchedulesFromDB,
+  deleteCourtsSchedulesFromDB
 };

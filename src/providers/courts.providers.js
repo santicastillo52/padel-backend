@@ -64,6 +64,12 @@ createCourtInDB = async (data, transaction)  => {
   return Court.create({ name, wall_type, court_type, clubId }, { transaction });
 };
 
+putCourtByIdFromDB = async(courtId, courtData) => {
+   await Court.update(courtData, {
+    where: {id: courtId}
+  })
+  return await Court.findByPk(courtId);
 
+}
 
-module.exports = { createCourtInDB, getCourtsFromDB, getCourtByIdFromDB };
+module.exports = { createCourtInDB, getCourtsFromDB, getCourtByIdFromDB, putCourtByIdFromDB };

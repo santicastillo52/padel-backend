@@ -8,7 +8,7 @@ getAllCourts = async (req, res) => {
         res.status(200).json(courts);
     } catch (error) {
         console.error('Error fetching courts:', error);
-        res.status(500).json({ message: error.message
+        res.status(500).json({ message: error.message || ' Error fetching court'
          });
     }
 }
@@ -20,7 +20,7 @@ getCourtById = async (req, res) => {
         res.status(200).json(court);
     }
     catch (error) {
-        res.status(500).json({ message: error.message});
+        res.status(500).json({ message: error.message || ' Error fetching court' });
     }
 }
 
@@ -36,4 +36,15 @@ getCourtById = async (req, res) => {
     }
 }
 
-module.exports = { getAllCourts, createCourts, getCourtById };
+editCourt =  async (req, res) => {
+    try {
+        const courtId =  req.params.id;
+        const courtData = req.body;
+        const updatedCourt =  await courtsService.editCourt(courtId, courtData)
+        res.status(200).json(updatedCourt);
+    } catch (error){
+        console.error('Error editing court: ', error);
+        res.status(500).json({ message: error.message || 'Error editing court'})
+    }
+}
+module.exports = { getAllCourts, createCourts, getCourtById, editCourt };

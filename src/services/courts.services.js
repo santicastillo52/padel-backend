@@ -13,9 +13,8 @@ const fetchAllCourts = async (filters) => {
 const fetchCourtById = async (courtId) => {
  const court = await courtsProvider.getCourtByIdFromDB(courtId);
   if (!court) {
-    const error = new Error(`No se encontró la cancha con ID ${courtId}`);
-    error.status = 404;
-    throw error;
+   throw new Error(`No se encontró la cancha con ID ${courtId}`);
+   
   }
   return court;
 }
@@ -69,4 +68,19 @@ const addNewCourts = async (courtList) => {
   }
 };
 
-module.exports = { fetchAllCourts, addNewCourts, fetchCourtById };
+/**
+ * 
+ * @param {number} courtId - Id de la cancha
+ * @param {Array} courtData - Atributos a cambiar
+ * @returns {Promise<Object>} - Cancha modificada
+ * @throws {Error} Si ocurre un error al crear una cancha en la base de datos.
+ */
+const editCourt = async (courtId, courtData) => {
+  const updatedCourt = await courtsProvider.putCourtByIdFromDB(courtId, courtData);
+  if (!courtId){
+   throw new Error ( `No se encontro Cancha con id: ${courtId}`);
+  }
+  return updatedCourt
+}
+
+module.exports = { fetchAllCourts, addNewCourts, fetchCourtById, editCourt };

@@ -22,7 +22,7 @@ const createCourtsSchedules = async (req, res) => {
         res.status(201).json(createdSchedule);
     } catch (error) {
         console.error('Error creating courts schedule:', error);
-        res.status(500).json({ message: error.message
+        res.status(500).json({ message: error.message || 'error creating courts schedule'
         });
     }
 
@@ -36,7 +36,7 @@ const deleteCourtSchedule = async (req, res) => {
         res.status(200).json(deletedSchedule);
     } catch (error) {
         console.error('Error deleting courts schedule:', error);
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message: error.message || 'error deliting eliminating'});
     }
 }
 
