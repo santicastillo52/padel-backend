@@ -64,6 +64,31 @@ createCourtInDB = async (data, transaction)  => {
   return Court.create({ name, wall_type, court_type, clubId }, { transaction });
 };
 
+
+/**
+ * @param {string} name - nombre de la cancha
+ * @param {number} ClubId - Id del club
+ * @param {number} excludeId - id De la cancha que hay que excluir de la busqueda
+ */
+
+findCourtByNameExcludingId = async (name, clubId, excludeId) => {
+  return Court.findOne({
+    where: {
+      name, 
+      clubId: clubId,
+      id: { [Op.ne]: excludeId }
+    }
+  })
+}
+
+
+/**
+ * @param {number} courtId - Id de la cancha
+ * @param {string} courtData.name - Nombre de la cancha.
+ * @param {string} courtData.wall_type - Tipo de pared ("cement" o "acrylic").
+ * @param {string} courtData.court_type - Tipo de cancha ("indoor" o "outdoor").
+ * @returns {Promise<Object>} - Objeto cancha editada.
+ */
 putCourtByIdFromDB = async(courtId, courtData) => {
    await Court.update(courtData, {
     where: {id: courtId}
@@ -72,4 +97,18 @@ putCourtByIdFromDB = async(courtId, courtData) => {
 
 }
 
-module.exports = { createCourtInDB, getCourtsFromDB, getCourtByIdFromDB, putCourtByIdFromDB };
+/**
+ * @param {number} courtId - Id de la cancha a eliminar
+ * @throws {error} - si no existe court
+ * @returns {Promise<Object>} - Cancha eliminada
+ */
+deleteCourtFromDb = async (courtId) => {
+  const courtToDelete = await Court.findByPk(courtId);
+  if(!courtToDelete){
+    throw new Error (`No se encontró el cancha con ID: ${courtId}`)
+  }
+  await Court.destroy({where: {id: courtId}})
+  return courtToDelete;
+}
+
+module.exports = { createCourtInDB, getCourtsFromDB, getCourtByIdFromDB, findCourtByNameExcludingId, putCourtByIdFromDB, deleteCourtFromDb };

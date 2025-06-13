@@ -47,4 +47,15 @@ editCourt =  async (req, res) => {
         res.status(500).json({ message: error.message || 'Error editing court'})
     }
 }
-module.exports = { getAllCourts, createCourts, getCourtById, editCourt };
+
+deleteCourt =  async (req, res) => {
+    try {
+        const courtId = req.params.id;
+        const deletedCourt =  await courtsService.deleteCourt(courtId);
+        res.status(200).json(deletedCourt);
+    } catch (error){
+        console.error('Error deleting court' , error);
+        res.status(500).json({message: message.error || 'Error deleting court'});
+    }
+}
+module.exports = { getAllCourts, createCourts, getCourtById, editCourt, deleteCourt };

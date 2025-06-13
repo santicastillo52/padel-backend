@@ -24,8 +24,13 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   Court.associate = (models) => {
-    // Relación uno a muchos: Un club puede tener muchas canchas
-    Court.belongsTo(models.Club, { foreignKey: 'clubId' });
+    Court.belongsTo(models.Club, { foreignKey: 'clubId', onDelete: 'CASCADE', });
+    Court.hasMany(models.CourtSchedule, {
+      foreignKey: 'courtId',
+      onDelete: 'CASCADE',
+      hooks: true,
+    });
+
   };
 
   return Court;

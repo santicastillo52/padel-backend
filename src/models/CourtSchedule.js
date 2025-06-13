@@ -34,7 +34,7 @@ module.exports = (sequelize, DataTypes) => {
     }
 });
 CourtSchedule.associate = (models) => {
-    CourtSchedule.belongsTo(models.Court, { foreignKey: 'courtId' });
+    CourtSchedule.belongsTo(models.Court, { foreignKey: 'courtId', onDelete: 'DELETE', });
     models.Court.hasMany( CourtSchedule, { foreignKey: 'courtId' });
     CourtSchedule.hasMany(models.Booking, { foreignKey: 'courtScheduleId' });
   };

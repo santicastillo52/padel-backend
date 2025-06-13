@@ -76,11 +76,27 @@ const addNewCourts = async (courtList) => {
  * @throws {Error} Si ocurre un error al crear una cancha en la base de datos.
  */
 const editCourt = async (courtId, courtData) => {
+  const existingCourt = await courtsProvider.findCourtByNameExcludingId(courtData.name, courtData.clubId, courtId);
+  if (existingCourt) {
+  throw new Error(`Ya existe una cancha con el nombre ${courtData.name} en este club`);
+}
   const updatedCourt = await courtsProvider.putCourtByIdFromDB(courtId, courtData);
-  if (!courtId){
-   throw new Error ( `No se encontro Cancha con id: ${courtId}`);
-  }
+  
   return updatedCourt
 }
 
-module.exports = { fetchAllCourts, addNewCourts, fetchCourtById, editCourt };
+/**
+ * 
+ * @param {number} courtId - Id de la cancha
+ * @returns {promise<Object>} - Cancha eliminada
+ * @throws {error} - Si ocurre un error al eliminar la cancha en la base de datos
+ */
+const deleteCourt =  async (courtId) => {
+  const deletedCourt = await courtsProvider.deleteCourtFromDb(courtId);
+  if(!courtId){
+    throw new Error (`No se encontro Cancha con id: ${courtId}`);
+  }
+  return deletedCourt;
+ } 
+ 
+module.exports = { fetchAllCourts, addNewCourts, fetchCourtById, editCourt, deleteCourt };
