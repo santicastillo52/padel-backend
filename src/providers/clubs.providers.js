@@ -1,4 +1,5 @@
-const { Club, Court } = require("../models");
+const { Club, Court, Image } = require("../models");
+const { getClubIncludes } = require("../utils/queryHelpers");
 
 const { Op } = require("sequelize");
 
@@ -10,7 +11,7 @@ const { Op } = require("sequelize");
  * @param {string} [filters.location] - Filtro por ubicación del club (búsqueda parcial).
  * @param {number} [filters.id] - Filtro por ID del club.
  *
- * @returns {Promise<Array<Object>>} - Lista de clubes que coinciden con los filtros, incluyendo sus canchas asociadas.
+ * @returns {Promise<Array<Object>>} - Lista de clubes que coinciden con los filtros, incluyendo sus canchas asociadas e imágenes.
  */
 
 const getClubsFromDB = async (filters = {}) => {
@@ -30,7 +31,7 @@ const getClubsFromDB = async (filters = {}) => {
 
   return await Club.findAll({
     where,
-    include: { model: Court, attributes: [ "id", "name", "wall_type", "court_type"] },
+    include: getClubIncludes(),
   });
 };
 
@@ -38,14 +39,14 @@ const getClubsFromDB = async (filters = {}) => {
  * Obtiene un club específico de la base de datos por su ID.
  *
  * @param {number} id - ID del club a buscar.
- * @returns {Promise<Object>} - Club encontrado con sus canchas asociadas.
+ * @returns {Promise<Object>} - Club encontrado con sus canchas asociadas e imágenes.
  * @throws {Error} - Si no se encuentra el club.
  */
 
 const getOneClubFromDB = async (id) => {
   const club = await Club.findOne({
     where: { id },
-    include: { model: Court, attributes: ["id", "name", "wall_type", "court_type"] },
+    include: getClubIncludes(),
   });
 
   if (!club) {
@@ -54,18 +55,19 @@ const getOneClubFromDB = async (id) => {
 
   return club;
 };
+
 /**
  * Obtiene el club asociado a un usuario específico por su ID.
  *
  * @param {number} id - ID del usuario dueño del club.
- * @returns {Promise<Object>} - Club del usuario con sus canchas asociadas.
+ * @returns {Promise<Object>} - Club del usuario con sus canchas asociadas e imágenes.
  * @throws {Error} - Si no se encuentra el club.
  */
 
 const getMyClubFromDB = async (id) => {
   const club = await Club.findOne({
     where: { UserId: id },
-    include: { model: Court, attributes: ["id", "name", "wall_type", "court_type"] },
+    include: getClubIncludes(),
   });
 
   if (!club) {
@@ -113,10 +115,47 @@ const findClubByUserId = async (userId) => {
   return await Club.findOne({ where: { UserId: userId } });
 };
 
+/**
+ * Obtiene todas las imágenes de un club y sus canchas
+ *
+ * @param {number} clubId - ID del club.
+ * @returns {Promise<Object>} - Objeto con imágenes del club y de sus canchas.
+ */
+const getClubImages = async (clubId) => {
+  const club = await Club.findByPk(clubId, {
+    include: [
+      {
+        model: Image,
+        where: { type: 'club' },
+        required: false,
+        attributes: ['id', 'url', 'type']
+      }
+    ]
+  });
+
+  const courts = await Court.findAll({
+    where: { ClubId: clubId },
+    include: [
+      {
+        model: Image,
+        where: { type: 'court' },
+        required: false,
+        attributes: ['id', 'url', 'type']
+      }
+    ]
+  });
+
+  return {
+    clubImages: club?.Images || [],
+    courtImages: courts.flatMap(court => court.Images || [])
+  };
+};
+
 module.exports = {
   getClubsFromDB,
   getOneClubFromDB,
   getMyClubFromDB,
   createClubInDB,
   findClubByUserId,
+  getClubImages,
 };

@@ -17,11 +17,27 @@ const userProvider = require("../providers/users.providers");
  */
 
 const createUser = async ({ name, email, password, role, position }) => {
-  const existingUser = await User.findOne({ where: { email } });
-  if (existingUser) throw new Error("El usuario ya existe");
+  // Validar que todos los campos requeridos estén presentes
+  if (!name || !email || !password || !role) {
+    throw new Error('Todos los campos son obligatorios');
+  }
 
+  // Validar formato de email
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    throw new Error('Formato de email inválido');
+  }
+
+  // Verificar si el usuario ya existe
+  const existingUser = await User.findOne({ where: { email } });
+  if (existingUser) {
+    throw new Error('El usuario ya existe');
+  }
+
+  // Hashear la contraseña
   const hashedPassword = await bcrypt.hashPassword(password);
 
+  // Crear el usuario en la base de datos
   const newUser = await userProvider.createUserInDB({
     name,
     email,
@@ -29,11 +45,14 @@ const createUser = async ({ name, email, password, role, position }) => {
     role,
     position,
   });
+
+  // Generar token JWT
   const token = jwt.generateToken({
     id: newUser.id,
     name: newUser.name,
     role: newUser.role,
   });
+
   return {
     message: "Usuario registrado correctamente",
     token,

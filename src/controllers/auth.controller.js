@@ -43,12 +43,27 @@ const login = async (req, res, next) => {
  */
 const register = async (req, res) => {
   try {
-    const result =  await authService.createUser(req.body);
-    res.status(201).json(result)
-    } catch (error) {
-      console.error('Error registering user:', error);
+    const result = await authService.createUser(req.body);
+    res.status(201).json(result);
+  } catch (error) {
+    console.error('Error registering user:', error);
+    
+    // Manejar el error de usuario duplicado
+    if (error.message === 'El usuario ya existe') {
+      return res.status(409).json({ 
+        message: 'El usuario ya existe',
+        error: 'EMAIL_DUPLICATE'
+      });
+    }
+    
+    // Error genérico para otros casos
+    res.status(500).json({ 
+      message: 'Error interno del servidor',
+      error: 'INTERNAL_ERROR'
+    });
   }
-}
+};
+
 module.exports = {
     login, register
 };

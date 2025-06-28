@@ -1,4 +1,6 @@
 const imageProvider = require('../providers/images.providers');
+const courtProvider = require('../providers/courts.providers');
+const clubProvider = require('../providers/clubs.providers');
 
 
 const fetchAllImages = async () => {
@@ -9,17 +11,49 @@ const fetchAllImages = async () => {
 const handleUpload = async (req) => {
   const { type, courtId, clubId } = req.body;
 
-  /*if (type === 'court' && !courtId) {
-    throw new Error('CourtId is required for court images');
+  // Validaciones básicas
+  if (!req.file) {
+    throw new Error('No se ha proporcionado ningún archivo');
   }
 
+  if (!type || !['court', 'club'].includes(type)) {
+    throw new Error('El tipo debe ser "court" o "club"');
+  }
+
+  // Validación de pertenencia exclusiva
   if (type === 'court') {
-    const courtExists = await courtProvider.findCourtById(courtId);
-    if (!courtExists) {
-      throw new Error(`Court with id ${courtId} does not exist`);
+    if (!courtId) {
+      throw new Error('CourtId es requerido para imágenes de cancha');
+    }
+    if (clubId) {
+      throw new Error('Una imagen de cancha no puede tener ClubId');
     }
   }
-*/
+
+  if (type === 'club') {
+    if (!clubId) {
+      throw new Error('ClubId es requerido para imágenes de club');
+    }
+    if (courtId) {
+      throw new Error('Una imagen de club no puede tener CourtId');
+    }
+  }
+
+  // Verificar que la entidad existe
+  if (type === 'court') {
+    const courtExists = await courtProvider.getCourtByIdFromDB(courtId);
+    if (!courtExists) {
+      throw new Error(`La cancha con id ${courtId} no existe`);
+    }
+  }
+
+  if (type === 'club') {
+    const clubExists = await clubProvider.getOneClubFromDB(clubId);
+    if (!clubExists) {
+      throw new Error(`El club con id ${clubId} no existe`);
+    }
+  }
+
   const imageData = {
     url: `/uploads/${req.file.filename}`,
     type,
@@ -28,8 +62,8 @@ const handleUpload = async (req) => {
   };
 
   const newImage = await imageProvider.createImage(imageData);
-
   return newImage;
 };
 
 module.exports = { fetchAllImages, handleUpload };
+

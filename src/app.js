@@ -27,6 +27,7 @@ const startApp = async () => {
     });
 
     app.use(cors());
+    app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
     app.use(loginRoutes)
     app.use(userRoutes);
     app.use(clubsRoutes);
@@ -34,7 +35,7 @@ const startApp = async () => {
     app.use(courtSchedulesRoutes);
     app.use(courtsRoutes);
     app.use(imagesRoutes);
-    app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+   
   
 
 
