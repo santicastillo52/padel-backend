@@ -6,7 +6,9 @@ const Image = require('../models/Image');
 const imageController = require('../controllers/images.controller');
 
 router.get('/images', imageController.getAllImages);
-
 router.post('/images/upload', upload.single('image'), imageController.uploadImage);
+router.put('/images/upload', upload.single('image'), imageController.updateImage);
+
+
 
 module.exports = router;

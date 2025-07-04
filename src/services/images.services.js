@@ -8,7 +8,19 @@ const fetchAllImages = async () => {
   return images;
 };
 
-const handleUpload = async (req) => {
+const handleUpload =  async (req, res)=> {
+  const {type, clubId } = req.body;
+  // Validaciones básicas
+  if (!req.file) {
+    throw new Error('No se ha proporcionado ningún archivo');
+  }
+
+  if (!type || !['court', 'club'].includes(type)) {
+    throw new Error('El tipo debe ser "court" o "club"');
+  }
+  
+}
+const handleUpdate = async (req) => {
   const { type, courtId, clubId } = req.body;
 
   // Validaciones básicas
@@ -65,5 +77,5 @@ const handleUpload = async (req) => {
   return newImage;
 };
 
-module.exports = { fetchAllImages, handleUpload };
+module.exports = { fetchAllImages, handleUpdate };
 
