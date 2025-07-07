@@ -35,14 +35,20 @@ getCourtsFromDB = async (filters = {}) => {
  * @returns {Promise<Object>} - Objeto que representa la cancha encontrada, incluyendo el nombre del club asociado y los horarios de la cancha.
  * 
  */
-getCourtByIdFromDB = async (courtId) => {
-  return await Court.findOne({
+getCourtByIdFromDB = async (courtId, transaction = null) => {
+  const options = {
     where: { id: courtId },
     include: { 
       model: Club, attributes: ["name"],
       model: CourtSchedule, attributes: ["id", "day_of_week", "start_time", "end_time"]
     },
-  });
+  };
+  
+  if (transaction) {
+    options.transaction = transaction;
+  }
+  
+  return await Court.findOne(options);
 }
 
 /**

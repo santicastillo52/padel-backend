@@ -9,8 +9,8 @@ const getImagesFromDb = async () => {
   return await Image.findAll();
 };
 
-const createImage = async (data) => {
-  return await Image.create(data);
+const createImage = async (data, transaction) => {
+  return await Image.create(data, transaction );
 };
 
 module.exports = { getImagesFromDb, createImage };

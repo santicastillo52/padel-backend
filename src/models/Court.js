@@ -30,7 +30,10 @@ module.exports = (sequelize, DataTypes) => {
       onDelete: 'CASCADE',
       hooks: true,
     });
-
+    Court.hasMany(models.Image, {
+      foreignKey: 'CourtId',
+      onDelete: 'CASCADE',
+    });
   };
 
   return Court;

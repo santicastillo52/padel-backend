@@ -26,10 +26,35 @@ getCourtById = async (req, res) => {
 
  createCourts = async (req, res) => {
     try {
-        const courtData = req.body;
-        const newCourt = await courtsService.addNewCourts(courtData);
+        // Extraer canchas del form-data
+        let courts = [];
+        const files = req.files || [];
         
-        res.status(201).json(newCourt);
+        // Verificar si los datos vienen en formato anidado
+        if (req.body.courts && Array.isArray(req.body.courts)) {
+            courts = req.body.courts;
+        } else {
+            // Procesar campos con índices (formato plano)
+            Object.keys(req.body).forEach(key => {
+                const match = key.match(/courts\[(\d+)\]\[(\w+)\]/);
+                if (match) {
+                    const [, index, field] = match;
+                    if (!courts[index]) courts[index] = {};
+                    courts[index][field] = req.body[key];
+                }
+            });
+        }
+        
+        // Convertir clubId a número
+        courts.forEach(court => {
+            if (court.clubId) {
+                court.clubId = parseInt(court.clubId);
+            }
+        });
+        
+        const newCourts = await courtsService.addNewCourts(courts, files);
+        
+        res.status(201).json(newCourts);
     } catch (error) {
         console.error('Error creating court:', error);
         res.status(500).json({ message: error.message || 'Error creating court'});

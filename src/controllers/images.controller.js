@@ -10,19 +10,12 @@ const getAllImages = async (req, res) => {
   }
 };
 
-const uploadImage = async (req, res) => {
-  try {
-    const response = await imageService.handleUpload(req);
-    res.status(201).json(response);
-  } catch (error) {
 
-    res.status(500).json({ message: error.message || 'error uploading image'});
-  }
-}
 
 const updateImage = async (req, res) => {
+  const courtData = req.body;
   try {
-    const response = await imageService.handleUpdate(req);
+    const response = await imageService.handleUpdate(courtData);
     res.status(201).json(response);
   } catch (error) {
 
@@ -31,5 +24,5 @@ const updateImage = async (req, res) => {
 };
 
 module.exports = {
-  getAllImages, uploadImage, updateImage
+  getAllImages, updateImage
 };

@@ -13,6 +13,10 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage });
+// Storage en memoria para archivos temporales
+const memoryStorage = multer.memoryStorage();
 
-module.exports = upload;
+const upload = multer({ storage });
+const uploadMemory = multer({ storage: memoryStorage });
+
+module.exports = { upload, uploadMemory };

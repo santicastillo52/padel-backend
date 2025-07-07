@@ -22,6 +22,10 @@ module.exports = (sequelize, DataTypes) => {
   Club.associate = (models) => {
     Club.belongsTo(models.User, { foreignKey: 'UserId' });
     Club.hasMany(models.Court, { foreignKey: 'clubId' });
+    Club.hasMany(models.Image, {
+      foreignKey: 'ClubId',
+      onDelete: 'CASCADE',
+    });
   };
 
   return Club;

@@ -43,11 +43,17 @@ const getClubsFromDB = async (filters = {}) => {
  * @throws {Error} - Si no se encuentra el club.
  */
 
-const getOneClubFromDB = async (id) => {
-  const club = await Club.findOne({
+const getOneClubFromDB = async (id, transaction = null) => {
+  const options = {
     where: { id },
     include: getClubIncludes(),
-  });
+  };
+  
+  if (transaction) {
+    options.transaction = transaction;
+  }
+  
+  const club = await Club.findOne(options);
 
   if (!club) {
     throw new Error("Club not found");
