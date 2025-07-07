@@ -1,5 +1,5 @@
 
-const {Club, Court, CourtSchedule}  = require('../models');
+const {Club, Court, CourtSchedule, Image}  = require('../models');
 const { Op } = require('sequelize');
 
 /**
@@ -38,10 +38,11 @@ getCourtsFromDB = async (filters = {}) => {
 getCourtByIdFromDB = async (courtId, transaction = null) => {
   const options = {
     where: { id: courtId },
-    include: { 
-      model: Club, attributes: ["name"],
-      model: CourtSchedule, attributes: ["id", "day_of_week", "start_time", "end_time"]
-    },
+    include: [
+      { model: Club, attributes: ["name"] },
+      { model: CourtSchedule, attributes: ["id", "day_of_week", "start_time", "end_time"] },
+      { model: Image, attributes: ["id", "url", "type"] }
+    ],
   };
   
   if (transaction) {

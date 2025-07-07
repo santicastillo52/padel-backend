@@ -2,54 +2,104 @@ const imageProvider = require('../providers/images.providers');
 const courtProvider = require('../providers/courts.providers');
 const clubProvider = require('../providers/clubs.providers');
 
-// Validar formato de imagen
-const validateImageFormat = (file) => {
-  const allowedMimeTypes = [
-    'image/jpeg',
-    'image/jpg', 
-    'image/png',
-    'image/gif',
-    'image/webp'
-  ];
-  
-  const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
-  
-  // Validar por MIME type
-  if (!allowedMimeTypes.includes(file.mimetype)) {
-    throw new Error('Formato de imagen no válido. Solo se permiten: JPG, PNG, GIF, WEBP');
-  }
-  
-  // Validar por extensión del archivo
-  const fileExtension = file.originalname.toLowerCase().substring(file.originalname.lastIndexOf('.'));
-  if (!allowedExtensions.includes(fileExtension)) {
-    throw new Error('Extensión de archivo no válida. Solo se permiten: .jpg, .jpeg, .png, .gif, .webp');
-  }
-  
-  // Validar tamaño (máximo 5MB)
-  const maxSize = 5 * 1024 * 1024; // 5MB en bytes
-  if (file.size > maxSize) {
-    throw new Error('El archivo es demasiado grande. Máximo 5MB permitido');
-  }
-};
-
+/**
+ * Obtiene todas las imágenes de la base de datos
+ * @returns {Promise<Array>} - Lista de todas las imágenes
+ * @throws {Error} - Si ocurre un error al obtener las imágenes
+ */
 const fetchAllImages = async () => {
   const images = await imageProvider.getImagesFromDb();
   return images;
 };
 
+/**
+ * Actualiza una imagen existente en la base de datos
+ * @param {Object} imageData - Datos de la imagen a actualizar
+ * @param {number} imageData.id - ID de la imagen
+ * @param {string} imageData.url - Nueva URL de la imagen
+ * @param {string} imageData.type - Tipo de imagen ('court' o 'club')
+ * @param {number} imageId - ID de la imagen a actualizar
+ * @returns {Promise<Object>} - Imagen actualizada
+ * @throws {Error} - Si la imagen no existe o ocurre un error al actualizar
+ */
+const handleUpdate = async (imageData, imageId) => {
+  const image = await imageProvider.getImageByIdFromDB(imageId);
+  if (!image) {
+    throw new Error(`La imagen con id ${imageId} no existe`);
+  }
+  await imageProvider.deleteImage(imageId);
+  const updatedImage = await imageProvider.updateImage(imageData);
+  return updatedImage;
+};
 
+/**
+ * Actualiza una imagen existente con un nuevo archivo
+ * @param {number} imageId - ID de la imagen a actualizar
+ * @param {Object} file - Nuevo archivo de imagen
+ * @returns {Promise<Object>} - Imagen actualizada
+ * @throws {Error} - Si la imagen no existe o ocurre un error al actualizar
+ */
+const handleImageUpdate = async (imageId, file) => {
+  const fs = require('fs').promises;
+  const path = require('path');
   
+  // Verificar que la imagen existe
+  const existingImage = await imageProvider.getImageByIdFromDB(imageId);
+  if (!existingImage) {
+    throw new Error(`La imagen con id ${imageId} no existe`);
+  }
 
-const handleUpdate = async (courtData, transaction) => {
+  // Validar el nuevo archivo
+  if (!file) {
+    throw new Error('No se ha proporcionado ningún archivo');
+  }
+
+
+
+  // Eliminar archivo físico anterior
+  const oldFilePath = path.join(__dirname, '../../uploads', existingImage.url.split('/').pop());
+  try {
+    await fs.unlink(oldFilePath);
+  } catch (error) {
+    console.error('Error eliminando archivo anterior:', error);
+  }
+
+  // Subir nuevo archivo
+  const filename = `${Date.now()}_${file.originalname}`;
+  const newFilePath = path.join(__dirname, '../../uploads', filename);
+  await fs.writeFile(newFilePath, file.buffer);
+
+  // Actualizar registro en BD
+  const updatedImageData = {
+    id: imageId,
+    url: `/uploads/${filename}`
+  };
+
+  await imageProvider.updateImage(updatedImageData);
+  
+  // Retornar imagen actualizada
+  return await imageProvider.getImageByIdFromDB(imageId);
+};
+
+/**
+ * Sube una nueva imagen y la asocia a una entidad (cancha o club)
+ * @param {Object} courtData - Datos de la imagen y entidad
+ * @param {Object} courtData.file - Archivo de imagen
+ * @param {string} courtData.file.filename - Nombre del archivo
+ * @param {string} courtData.type - Tipo de entidad ('court' o 'club')
+ * @param {number} [courtData.courtId] - ID de la cancha (requerido si type es 'court')
+ * @param {number} [courtData.clubId] - ID del club (requerido si type es 'club')
+ * @param {Object} transaction - Transacción Sequelize para la operación
+ * @returns {Promise<Object>} - Imagen creada
+ * @throws {Error} - Si no se proporciona archivo, tipo inválido, o entidad no existe
+ */
+const handleUpload = async (courtData, transaction) => {
   const { type, courtId, clubId } = courtData;
 
   // Validaciones básicas
   if (!courtData.file) {
     throw new Error('No se ha proporcionado ningún archivo');
   }
-
-  // Validar formato de imagen
-  validateImageFormat(courtData.file);
 
   if (!type || !['court', 'club'].includes(type)) {
     throw new Error('El tipo debe ser "court" o "club"');
@@ -100,9 +150,10 @@ const handleUpdate = async (courtData, transaction) => {
   return newImage;
 };
 
-
 module.exports = { 
   fetchAllImages, 
+  handleUpload,
   handleUpdate,
+  handleImageUpdate
 };
 
