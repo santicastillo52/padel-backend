@@ -1,4 +1,3 @@
-
 const {Club, Court, CourtSchedule, Image}  = require('../models');
 const { Op } = require('sequelize');
 
@@ -118,4 +117,25 @@ deleteCourtFromDb = async (courtId) => {
   return courtToDelete;
 }
 
-module.exports = { createCourtInDB, getCourtsFromDB, getCourtByIdFromDB, findCourtByNameExcludingId, putCourtByIdFromDB, deleteCourtFromDb };
+/**
+ * Actualiza el estado de disponibilidad de una cancha en la base de datos
+ * @param {number} courtId - Id de la cancha
+ * @param {boolean} available - Nuevo estado de disponibilidad
+ * @returns {Promise<Object>} - Cancha actualizada
+ */
+updateCourtAvailabilityInDB = async (courtId, available) => {
+  await Court.update({ available }, {
+    where: { id: courtId }
+  });
+  return await Court.findByPk(courtId);
+}
+
+module.exports = { 
+  createCourtInDB, 
+  getCourtsFromDB, 
+  getCourtByIdFromDB, 
+  findCourtByNameExcludingId, 
+  putCourtByIdFromDB, 
+  deleteCourtFromDb,
+  updateCourtAvailabilityInDB 
+};

@@ -83,4 +83,22 @@ deleteCourt =  async (req, res) => {
         res.status(500).json({message: message.error || 'Error deleting court'});
     }
 }
-module.exports = { getAllCourts, createCourts, getCourtById, editCourt, deleteCourt };
+
+updateAvailability = async (req, res) => {
+    try {
+        const courtId = req.params.id;
+        const { available } = req.body;
+        
+        if (typeof available !== 'boolean') {
+            return res.status(400).json({ message: 'El campo available debe ser un valor booleano' });
+        }
+
+        const updatedCourt = await courtsService.updateCourtAvailability(courtId, available);
+        res.status(200).json(updatedCourt);
+    } catch (error) {
+        console.error('Error updating court availability:', error);
+        res.status(500).json({ message: error.message || 'Error updating court availability' });
+    }
+}
+
+module.exports = { getAllCourts, createCourts, getCourtById, editCourt, deleteCourt, updateAvailability };
