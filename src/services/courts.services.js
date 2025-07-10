@@ -133,26 +133,11 @@ const deleteCourt =  async (courtId) => {
   }
   return deletedCourt;
  } 
- /**
- * Actualiza la disponibilidad de una cancha
- * @param {number} courtId - Id de la cancha
- * @param {boolean} available - Nuevo estado de disponibilidad
- * @returns {Promise<Object>} - Cancha actualizada
- * @throws {Error} Si la cancha no existe o hay un error en la actualización
- */
-const updateCourtAvailability = async (courtId, available) => {
-  const court = await courtsProvider.updateCourtAvailabilityInDB(courtId, available);
-  if (!court) {
-    throw new Error(`No se encontró la cancha con ID ${courtId}`);
-  }
-  return court;
-}
-
+ 
 module.exports = { 
   fetchAllCourts, 
   addNewCourts, 
   fetchCourtById, 
   editCourt, 
-  deleteCourt, 
-  updateCourtAvailability 
+  deleteCourt 
 };
