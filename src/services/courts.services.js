@@ -9,6 +9,20 @@ const fetchAllCourts = async (filters) => {
 };
 
 /**
+ * Obtiene canchas disponibles para un día y horario específico.
+ *
+ * @param {Object} filters - Filtros para buscar canchas disponibles.
+ * @param {string} filters.day_of_week - Día de la semana.
+ * @param {string} filters.start_time - Hora de inicio.
+ * @param {string} filters.end_time - Hora de fin.
+ * @param {number} [filters.clubId] - ID del club (opcional).
+ * @returns {Promise<Array<Object>>} - Lista de canchas disponibles.
+ */
+const fetchAvailableCourts = async (filters) => {
+  return await courtsProvider.getAvailableCourtsFromDB(filters);
+};
+
+/**
  * Devuelve una cancha específica por su ID.
  * @param {number} courtId 
  * @returns {Promise<Object>} - Objeto que representa la cancha encontrada.
@@ -133,11 +147,14 @@ const deleteCourt =  async (courtId) => {
   }
   return deletedCourt;
  } 
+
+
  
 module.exports = { 
   fetchAllCourts, 
   addNewCourts, 
   fetchCourtById, 
   editCourt, 
-  deleteCourt 
+  deleteCourt,
+  fetchAvailableCourts
 };

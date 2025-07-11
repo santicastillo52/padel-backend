@@ -5,6 +5,7 @@ const router = express.Router();
 
 router.get('/courts', courtsController.getAllCourts);
 router.get('/courts/:id', courtsController.getCourtById);
+router.get('/courts-available', courtsController.getAvailableCourts);
 router.post('/courts-create/', uploadMemory.array('image'), courtsController.createCourts);
 router.patch('/court-edit/:id', courtsController.editCourt);
 router.delete('/court-delete/:id', courtsController.deleteCourt);

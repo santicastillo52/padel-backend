@@ -13,6 +13,18 @@ getAllCourts = async (req, res) => {
     }
 }
 
+getAvailableCourts = async (req, res) => {
+    try {
+        const filters = req.query;
+        const availableCourts = await courtsService.fetchAvailableCourts(filters);
+        
+        res.status(200).json(availableCourts);
+    } catch (error) {
+        console.error('Error fetching available courts:', error);
+        res.status(500).json({ message: error.message || 'Error fetching available courts' });
+    }
+}
+
 getCourtById = async (req, res) => {
     try{
         const courtId = req.params.id;
@@ -84,4 +96,6 @@ deleteCourt =  async (req, res) => {
     }
 }
 
-module.exports = { getAllCourts, createCourts, getCourtById, editCourt, deleteCourt };
+
+
+module.exports = { getAllCourts, createCourts, getCourtById, editCourt, deleteCourt, getAvailableCourts };

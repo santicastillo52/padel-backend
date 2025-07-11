@@ -1,4 +1,4 @@
-const {Club, Court, CourtSchedule, Image}  = require('../models');
+const {Club, Court, CourtSchedule, Image, Booking}  = require('../models');
 const { Op } = require('sequelize');
 
 /**
@@ -17,13 +17,54 @@ getCourtsFromDB = async (filters = {}) => {
     where.name = { [Op.like]: `%${filters.name}%` };
   }
 
-  if (filters.location) {
-    where.location = { [Op.like]: `%${filters.location}%` };
+  if (filters.wall_type) {
+    where.wall_type = { [Op.like]: `%${filters.wall_type}%` };
+  }
+
+  if (filters.court_type) {
+    where.court_type = { [Op.like]: `%${filters.court_type}%` };
+  }
+
+  if (filters.clubId) {
+    where.clubId = filters.clubId;  
   }
 
   return await Court.findAll({
     where,
     include: { model: Club, attributes: ["name"] },
+  });
+};
+getAvailableCourtsFromDB = async (filters) => {
+  const { day_of_week, start_time, end_time, clubId } = filters;
+  
+  const where = {};
+  
+  if (clubId) {
+    where.clubId = clubId;
+  }
+
+  return await Court.findAll({
+    where,
+    include: [
+      { 
+        model: Club, 
+        attributes: ["name"] 
+      },
+      {
+        model: CourtSchedule,
+        where: {
+          day_of_week: day_of_week,
+          start_time: { [Op.lte]: start_time }, // El horario de la cancha debe empezar antes o igual al inicio solicitado
+          end_time: { [Op.gte]: end_time },     // El horario de la cancha debe terminar después o igual al fin solicitado
+          status: 'available'
+        },
+        required: true
+      },
+      { 
+        model: Image, 
+        attributes: ["id", "url", "type"] 
+      }
+    ]
   });
 };
 
@@ -117,11 +158,24 @@ deleteCourtFromDb = async (courtId) => {
   return courtToDelete;
 }
 
+/**
+ * Obtiene canchas disponibles para un día y horario específico.
+ * Retorna canchas que tienen horarios configurados para el día y rango solicitado.
+ *
+ * @param {Object} filters - Filtros para buscar canchas disponibles.
+ * @param {string} filters.day_of_week - Día de la semana.
+ * @param {string} filters.start_time - Hora de inicio.
+ * @param {string} filters.end_time - Hora de fin.
+ * @param {number} [filters.clubId] - ID del club (opcional).
+ * @returns {Promise<Array<Object>>} - Lista de canchas disponibles.
+ */
+
 module.exports = { 
   createCourtInDB, 
   getCourtsFromDB, 
   getCourtByIdFromDB, 
   findCourtByNameExcludingId, 
   putCourtByIdFromDB, 
-  deleteCourtFromDb
+  deleteCourtFromDb,
+  getAvailableCourtsFromDB
 };
