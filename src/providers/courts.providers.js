@@ -34,30 +34,42 @@ getCourtsFromDB = async (filters = {}) => {
     include: { model: Club, attributes: ["name"] },
   });
 };
-getAvailableCourtsFromDB = async (filters) => {
+getAvailableCourtsFromDB = async (filters = {}) => {
   const { day_of_week, start_time, end_time, clubId } = filters;
   
   const where = {};
-  
   if (clubId) {
     where.clubId = clubId;
   }
 
+  // Construir condiciones para CourtSchedule solo si los filtros están presentes
+  const scheduleWhere = {
+    status: 'available'
+  };
+
+  if (day_of_week) {
+    scheduleWhere.day_of_week = day_of_week;
+  }
+
+  // Si se proporcionan horarios, buscar intersección de rangos
+  if (start_time && end_time) {
+    scheduleWhere[Op.and] = [
+      { start_time: { [Op.lt]: end_time } },   // El horario de la cancha empieza antes del final solicitado
+      { end_time: { [Op.gt]: start_time } }    // El horario de la cancha termina después del inicio solicitado
+    ];
+  }
+  
   return await Court.findAll({
-    where,
+    where: { available: true },
     include: [
       { 
         model: Club, 
+        where: { id: clubId },
         attributes: ["name"] 
       },
       {
         model: CourtSchedule,
-        where: {
-          day_of_week: day_of_week,
-          start_time: { [Op.lte]: start_time }, // El horario de la cancha debe empezar antes o igual al inicio solicitado
-          end_time: { [Op.gte]: end_time },     // El horario de la cancha debe terminar después o igual al fin solicitado
-          status: 'available'
-        },
+        where: scheduleWhere,
         required: true
       },
       { 

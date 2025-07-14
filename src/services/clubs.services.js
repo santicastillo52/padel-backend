@@ -10,6 +10,17 @@ const clubProvider = require("../providers/clubs.providers");
 fetchAllClubs = async (filters) => {
   return await clubProvider.getClubsFromDB(filters);
 };
+
+/**
+ * Obtiene todos los clubes para el dropdown.
+ *
+ * @returns {Promise<Array<Object>>} - Lista de clubes para el dropdown.
+ */
+
+
+fetchDropdownClubs = async () => {
+  return await clubProvider.getDropdownClubsFromDB();
+};
 /**
  * Obtiene un club específico por su ID.
  *
@@ -52,4 +63,4 @@ createClub = async (clubData) => {
   return await clubProvider.createClubInDB(clubData);
 };
 
-module.exports = { fetchAllClubs, fetchOneClub, fetchMyClub, createClub };
+module.exports = { fetchAllClubs, fetchDropdownClubs, fetchOneClub, fetchMyClub, createClub };

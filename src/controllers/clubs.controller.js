@@ -11,6 +11,17 @@ getAllClubs = async (req, res) => {
         res.status(500).json({ message: error.message || 'Error retrieving clubs' });
     }
 }
+
+getDropdownClubs = async (req, res) => {
+    try {
+        const clubs = await clubsService.fetchDropdownClubs();
+        res.status(200).json(clubs);
+    } catch (error) {
+        console.error('Error fetching clubs:', error);
+        res.status(500).json({ message: error.message || 'Error retrieving clubs' });
+    }
+}
+
 getOneClub = async (req, res) => {
     try {
         const { id } = req.params;
@@ -55,4 +66,4 @@ createClub = async (req, res) => {
     }
 }
 
-module.exports = {getAllClubs, getOneClub, getMyClub, createClub};
+module.exports = {getAllClubs, getDropdownClubs, getOneClub, getMyClub, createClub};

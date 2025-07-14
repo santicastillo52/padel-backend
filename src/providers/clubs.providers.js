@@ -43,6 +43,20 @@ const getClubsFromDB = async (filters = {}) => {
  * @throws {Error} - Si no se encuentra el club.
  */
 
+/**
+ * Obtiene todos los clubes para el dropdown.
+ *
+ * @returns {Promise<Array<Object>>} - Lista de clubes para el dropdown.
+
+*/
+
+const getDropdownClubsFromDB = async () => {
+  return await Club.findAll({
+    attributes: ['id', 'name'],
+  });
+};
+
+
 const getOneClubFromDB = async (id, transaction = null) => {
   const options = {
     where: { id },
@@ -83,16 +97,6 @@ const getMyClubFromDB = async (id) => {
   return club;
 };
 
-/**
- * Crea un nuevo club en la base de datos.
- *
- * @param {Object} clubData - Datos del nuevo club a crear.
- * @param {string} clubData.name - Nombre del club.
- * @param {string} clubData.location - Ubicación del club.
- * @param {number} clubData.UserId - ID del usuario propietario del club.
- *
- * @returns {Promise<Object>} - Club creado.
- */
 
 /**
  * Crea un nuevo club en la base de datos.
@@ -159,6 +163,7 @@ const getClubImages = async (clubId) => {
 
 module.exports = {
   getClubsFromDB,
+  getDropdownClubsFromDB,
   getOneClubFromDB,
   getMyClubFromDB,
   createClubInDB,

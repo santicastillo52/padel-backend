@@ -19,7 +19,11 @@ const fetchAllCourts = async (filters) => {
  * @returns {Promise<Array<Object>>} - Lista de canchas disponibles.
  */
 const fetchAvailableCourts = async (filters) => {
-  return await courtsProvider.getAvailableCourtsFromDB(filters);
+  const availableCourts = await courtsProvider.getAvailableCourtsFromDB(filters);
+  if (availableCourts.length === 0) {
+    throw new Error(`No se encontraron canchas disponibles`);
+  }
+  return availableCourts;
 };
 
 /**
