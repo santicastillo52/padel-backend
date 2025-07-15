@@ -1,5 +1,6 @@
 const courtsProvider = require("../providers/courts.providers");
 const imageService = require("./images.services");
+const courtHelpers = require("../utils/courtHelpers");
 const { sequelize, Court } = require("../models");
 const fs = require('fs').promises;
 const path = require('path');
@@ -12,18 +13,62 @@ const fetchAllCourts = async (filters) => {
  * Obtiene canchas disponibles para un día y horario específico.
  *
  * @param {Object} filters - Filtros para buscar canchas disponibles.
- * @param {string} filters.day_of_week - Día de la semana.
- * @param {string} filters.start_time - Hora de inicio.
- * @param {string} filters.end_time - Hora de fin.
+ * @param {string} filters.day_of_week - Día de la semana (en inglés, ej: 'monday').
+ * @param {string} filters.start_time - Hora de inicio (formato HH:mm:ss).
+ * @param {string} filters.end_time - Hora de fin (formato HH:mm:ss).
  * @param {number} [filters.clubId] - ID del club (opcional).
- * @returns {Promise<Array<Object>>} - Lista de canchas disponibles.
+ * @returns {Promise<Array<Object>>} - Lista de canchas disponibles con sus horarios próximos.
+ * @throws {Error} Si no se encuentran canchas disponibles.
  */
 const fetchAvailableCourts = async (filters) => {
   const availableCourts = await courtsProvider.getAvailableCourtsFromDB(filters);
-  if (availableCourts.length === 0) {
+
+  const dayMapping = {
+    'sunday': 0, 'monday': 1, 'tuesday': 2, 'wednesday': 3,
+    'thursday': 4, 'friday': 5, 'saturday': 6
+  };
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayWeekday = today.getDay();
+  const endOfWeek = new Date(today);
+  endOfWeek.setDate(today.getDate() + (6 - todayWeekday)); // Fin de la semana actual
+
+  const enrichedCourts = availableCourts.map(court => {
+    const schedules = court.CourtSchedules
+      .map(schedule => {
+        const targetWeekday = dayMapping[schedule.day_of_week];
+        const nextDate = courtHelpers.getNextDateForWeekday(targetWeekday, today);
+        let isPast = false;
+        // Si el turno es hoy
+        if (targetWeekday === todayWeekday && nextDate === today.toISOString().split('T')[0]) {
+          const startDateTime = new Date(`${nextDate}T${schedule.start_time}`);
+          if (today > startDateTime) {
+            isPast = true;
+          }
+        }
+        return {
+          ...schedule.dataValues,
+          date: nextDate,
+          isPast
+        };
+      })
+      .filter(schedule => {
+        // Solo mostrar horarios de esta semana y que no sean pasados
+        const scheduleDate = new Date(schedule.date);
+        return !schedule.isPast && scheduleDate <= endOfWeek;
+      });
+    return {
+      ...court.dataValues,
+      CourtSchedules: schedules
+    };
+  }).filter(court => court.CourtSchedules.length > 0);
+
+  if (enrichedCourts.length === 0) {
     throw new Error(`No se encontraron canchas disponibles`);
   }
-  return availableCourts;
+
+  return enrichedCourts;
 };
 
 /**
@@ -135,7 +180,7 @@ const editCourt = async (courtId, courtData) => {
 }
   const updatedCourt = await courtsProvider.putCourtByIdFromDB(courtId, courtData);
   
-  return updatedCourt
+  return updatedCourt;
 }
 
 /**

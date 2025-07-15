@@ -35,11 +35,21 @@ getCourtsFromDB = async (filters = {}) => {
   });
 };
 getAvailableCourtsFromDB = async (filters = {}) => {
-  const { day_of_week, start_time, end_time, clubId } = filters;
+  const { day_of_week, start_time, end_time, clubId, wall_type, court_type } = filters;
   
   const where = {};
+  
+  // Filtros opcionales para Court
   if (clubId) {
     where.clubId = clubId;
+  }
+  
+  if (wall_type) {
+    where.wall_type = wall_type;
+  }
+  
+  if (court_type) {
+    where.court_type = court_type;
   }
 
   // Construir condiciones para CourtSchedule solo si los filtros están presentes
@@ -60,11 +70,10 @@ getAvailableCourtsFromDB = async (filters = {}) => {
   }
   
   return await Court.findAll({
-    where: { available: true },
+    where,
     include: [
       { 
         model: Club, 
-        where: { id: clubId },
         attributes: ["name"] 
       },
       {
