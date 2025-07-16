@@ -1,6 +1,7 @@
 const courtsProvider = require("../providers/courts.providers");
 const imageService = require("./images.services");
 const courtHelpers = require("../utils/courtHelpers");
+const {DateTime} = require("luxon");
 const { sequelize, Court } = require("../models");
 const fs = require('fs').promises;
 const path = require('path');
@@ -9,44 +10,70 @@ const fetchAllCourts = async (filters) => {
   return await courtsProvider.getCourtsFromDB(filters);
 };
 
+
+
 /**
- * Obtiene canchas disponibles para un día y horario específico.
+ * Obtiene canchas disponibles según los filtros enviados (todos opcionales).
+ * Devuelve horarios desde la hora actual de hoy hasta el día anterior de la próxima semana.
+ * Para hoy solo devuelve horarios que no hayan pasado la hora actual.
  *
  * @param {Object} filters - Filtros para buscar canchas disponibles.
- * @param {string} filters.day_of_week - Día de la semana (en inglés, ej: 'monday').
- * @param {string} filters.start_time - Hora de inicio (formato HH:mm:ss).
- * @param {string} filters.end_time - Hora de fin (formato HH:mm:ss).
+ * @param {string} [filters.day_of_week] - Día de la semana (en inglés, ej: 'monday').
+ * @param {string} [filters.start_time] - Hora de inicio (formato HH:mm:ss).
+ * @param {string} [filters.end_time] - Hora de fin (formato HH:mm:ss).
  * @param {number} [filters.clubId] - ID del club (opcional).
  * @returns {Promise<Array<Object>>} - Lista de canchas disponibles con sus horarios próximos.
- * @throws {Error} Si no se encuentran canchas disponibles.
+ * @throws {Error} Si no se encontraron canchas disponibles en el período especificado.
+ * 
+ * @example
+ * // Obtener todas las canchas disponibles
+ * const courts = await fetchAvailableCourts({});
+ * 
+ * // Obtener canchas de un club específico
+ * const courts = await fetchAvailableCourts({ clubId: 1 });
+ * 
+ * // Obtener canchas disponibles para lunes
+ * const courts = await fetchAvailableCourts({ day_of_week: 'monday' });
  */
 const fetchAvailableCourts = async (filters) => {
   const availableCourts = await courtsProvider.getAvailableCourtsFromDB(filters);
 
   const dayMapping = {
-    'sunday': 0, 'monday': 1, 'tuesday': 2, 'wednesday': 3,
+    'sunday': 7, 'monday': 1, 'tuesday': 2, 'wednesday': 3,
     'thursday': 4, 'friday': 5, 'saturday': 6
   };
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const todayWeekday = today.getDay();
-  const endOfWeek = new Date(today);
-  endOfWeek.setDate(today.getDate() + (6 - todayWeekday)); // Fin de la semana actual
+  // Obtener fecha actual en zona horaria de Argentina
+  const today = DateTime.now().setZone('America/Argentina/Buenos_Aires');
+  const todayStart = today.startOf('day');
+  const todayWeekday = today.weekday; // Luxon usa 1-7 (lunes=1, domingo=7)
+  
+  
+  // Calcular el día anterior de la próxima semana (mismo día de la semana que hoy, pero de la próxima semana)
+  const nextWeekSameDay = today.plus({ weeks: 1 });
+  const endDate = nextWeekSameDay.minus({ days: 1 }); // Un día antes
+  
 
   const enrichedCourts = availableCourts.map(court => {
     const schedules = court.CourtSchedules
       .map(schedule => {
         const targetWeekday = dayMapping[schedule.day_of_week];
-        const nextDate = courtHelpers.getNextDateForWeekday(targetWeekday, today);
+        let nextDate;
         let isPast = false;
-        // Si el turno es hoy
-        if (targetWeekday === todayWeekday && nextDate === today.toISOString().split('T')[0]) {
-          const startDateTime = new Date(`${nextDate}T${schedule.start_time}`);
+        
+        // Si el horario es para hoy, usar la fecha actual
+        if (targetWeekday === todayWeekday) {
+          nextDate = today.toISODate();
+          // Verificar si ya pasó la hora
+          const startDateTime = DateTime.fromISO(`${nextDate}T${schedule.start_time}`, { zone: 'America/Argentina/Buenos_Aires' });
           if (today > startDateTime) {
             isPast = true;
           }
+        } else {
+          // Para otros días, calcular la próxima fecha
+          nextDate = courtHelpers.getNextDateForWeekday(targetWeekday, today);
         }
+        
         return {
           ...schedule.dataValues,
           date: nextDate,
@@ -54,9 +81,9 @@ const fetchAvailableCourts = async (filters) => {
         };
       })
       .filter(schedule => {
-        // Solo mostrar horarios de esta semana y que no sean pasados
-        const scheduleDate = new Date(schedule.date);
-        return !schedule.isPast && scheduleDate <= endOfWeek;
+        // Solo mostrar horarios desde hoy hasta el día anterior de la próxima semana y que no sean pasados
+        const scheduleDate = DateTime.fromISO(schedule.date, { zone: 'America/Argentina/Buenos_Aires' });
+        return !schedule.isPast && scheduleDate >= todayStart && scheduleDate <= endDate;
       });
     return {
       ...court.dataValues,
@@ -143,7 +170,7 @@ const addNewCourts = async (courtList, files) => {
           type: 'court',
           courtId: court.id
         };
-        await imageService.handleUpdate(mockReq, t);
+        await imageService.handleUpload(mockReq, t);
       }
     
       createdCourts.push(court);

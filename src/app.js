@@ -12,6 +12,8 @@ const loginRoutes = require('./routes/auth.routes.js');
 const path = require('path');
 const passport = require('passport');
 
+
+
 require('./config/passport')(passport);
 
 const app = express();
