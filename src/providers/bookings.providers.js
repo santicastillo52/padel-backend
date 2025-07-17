@@ -1,4 +1,4 @@
-const { Booking } = require("../models");
+const { Booking, Club, Court, CourtSchedule, User } = require("../models");
 const { Op } = require("sequelize");
 /**
  *
@@ -24,7 +24,27 @@ const getBookingsFromDB = async (filters = {}) => {
     where.courtId = { [Op.eq]: filters.courtId };
   }
 
-  return await Booking.findAll({ where });
+  return await Booking.findAll({ where, include: [
+    {
+      model: CourtSchedule,
+      attributes: ["id", "start_time", "end_time"],
+      
+    },
+    {
+      model: Court,
+      attributes: ["id", "name"],
+      include: [
+        {
+          model: Club,
+          attributes: ["id", "name"],
+        }
+      ]
+    },
+    {
+      model: User,
+      attributes: ["id", "name", "email"],
+    }
+  ] });
 };
 
 /**
@@ -63,8 +83,22 @@ const createBookingInDB = async (bookingData) => {
     throw new Error("Error creating booking: " + error.message);
   }
 };
+
+const deleteBookingInDB = async (bookingData) => {
+  try {
+    const bookingToDelete = await Booking.findByPk(bookingData.id);
+    if (!bookingToDelete) {
+      throw new Error("Booking not found");
+    }
+    await Booking.destroy({ where: { id: bookingData.id } });
+    return bookingToDelete;
+  } catch (error) {
+    throw new Error("Error deleting booking: " + error.message);
+  }
+};
 module.exports = {
   getBookingsFromDB,
   createBookingInDB,
-  getOneBookingByScheduleAndDateFromDB
+  getOneBookingByScheduleAndDateFromDB,
+  deleteBookingInDB
 };

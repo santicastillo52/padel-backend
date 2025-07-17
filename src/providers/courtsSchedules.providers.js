@@ -109,10 +109,82 @@ const deleteCourtsSchedulesFromDB = async (id) => {
   
 };
 
+/**
+ * Actualiza el estado de un horario de cancha.
+ *
+ * @param {number} id - ID del horario a actualizar.
+ * @param {string} status - Nuevo estado ('available', 'booked', 'maintenance').
+ * @param {Object} [transaction=null] - Transacción Sequelize opcional.
+ * @returns {Promise<Object>} - Horario actualizado.
+ */
+const updateCourtScheduleStatusInDB = async (id, status, transaction = null) => {
+
+  const schedule = await CourtSchedule.findByPk(id);
+  if (!schedule) {
+    throw new Error(`No se encontró el horario con ID: ${id}`);
+  }
+  
+  schedule.status = status;
+  await schedule.save({ transaction });
+  
+  return schedule;
+};
+
+/**
+ * Obtiene horarios de cancha por fecha específica.
+ *
+ * @param {string} date - Fecha en formato YYYY-MM-DD.
+ * @param {number} courtId - ID de la cancha (opcional).
+ * @returns {Promise<Array<Object>>} - Horarios encontrados para esa fecha.
+ */
+const getCourtSchedulesByDateFromDB = async (date, courtId = null) => {
+  const where = {};
+  
+  if (courtId) {
+    where.courtId = courtId;
+  }
+  
+  return await CourtSchedule.findAll({ 
+    where,
+    include: [{
+      model: require('../models').Court,
+      as: 'Court'
+    }]
+  });
+};
+
+/**
+ * Obtiene reservas que han terminado y necesitan cambiar su estado a available.
+ *
+ * @param {string} currentTime - Hora actual en formato HH:MM:SS.
+ * @param {string} currentDate - Fecha actual en formato YYYY-MM-DD.
+ * @returns {Promise<Array<Object>>} - Reservas que han terminado.
+ */
+const getFinishedBookingsFromDB = async (currentTime, currentDate) => {
+  const { Booking } = require('../models');
+  
+  return await Booking.findAll({
+    include: [{
+      model: CourtSchedule,
+      as: 'CourtSchedule',
+      where: {
+        end_time: { [Op.lt]: currentTime },
+        status: 'booked'
+      }
+    }],
+    where: {
+      date: currentDate
+    }
+  });
+};
+
 module.exports = {
   getCourtsSchedulesFromDB,
   createCourtsSchedulesInDB,
   findOverlappingSchedule,
   getOneCourtScheduleFromDB,
-  deleteCourtsSchedulesFromDB
+  deleteCourtsSchedulesFromDB,
+  updateCourtScheduleStatusInDB,
+  getCourtSchedulesByDateFromDB,
+  getFinishedBookingsFromDB
 };

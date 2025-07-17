@@ -53,11 +53,27 @@ const addBooking = async (bookingData) => {
       throw new Error("Ya existe una reserva para ese horario y fecha.");
     }
 
+
     const newBooking = await bookingsProvider.createBookingInDB(bookingData);
+    
+    await courtScheduleProvider.updateCourtScheduleStatusInDB(
+      bookingData.courtScheduleId,
+      "booked"
+    );
+    
     return newBooking;
   } catch (error) {
     throw new Error("Error creating booking: " + error.message);
   }
 };
 
-module.exports = { fetchAllBookings, addBooking };
+const deleteBooking = async (bookingData) => {
+  await bookingsProvider.deleteBookingInDB(bookingData);
+  await courtScheduleProvider.updateCourtScheduleStatusInDB(
+    bookingData.courtScheduleId,
+    "available"
+  );
+  return bookingData;
+};
+
+module.exports = { fetchAllBookings, addBooking, deleteBooking};

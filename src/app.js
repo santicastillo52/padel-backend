@@ -11,7 +11,7 @@ const imagesRoutes = require('./routes/images.routes.js');
 const loginRoutes = require('./routes/auth.routes.js');
 const path = require('path');
 const passport = require('passport');
-
+const courtScheduleStatusService = require('./services/courtScheduleStatus.service.js');
 
 
 require('./config/passport')(passport);
@@ -24,6 +24,10 @@ const startApp = async () => {
   try {
     await sequelize.authenticate();
     console.log("Connection has been established successfully.");
+    
+    // Inicializar el servicio automático de actualización de estados (cada 30 minutos)
+    courtScheduleStatusService.startAutomaticStatusUpdate();
+    
     app.get("/", (req, res) => {
       res.send("Hello World!");
     });

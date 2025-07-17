@@ -5,7 +5,6 @@ getAllUsers = async (req, res) => {
   
   try {
     const filters = req.query;
-    console.log('controller', filters);
     const users = await userService.fetchAllUsers(filters);
     
     res.status(200).json(users);
