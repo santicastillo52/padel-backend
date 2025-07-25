@@ -1,5 +1,6 @@
 const { DateTime } = require('luxon');
 const courtScheduleProvider = require("../providers/courtsSchedules.providers");
+const bookingsProvider = require("../providers/bookings.providers");
 
 /**
  * Servicio simple para actualizar automáticamente el estado de los horarios de cancha
@@ -25,16 +26,30 @@ const updateFinishedBookingsStatus = async () => {
     );
     
     if (finishedBookings.length > 0) {
-      // Actualizar el estado de cada horario a "available"
-      const updatePromises = finishedBookings.map(booking => 
-        courtScheduleProvider.updateCourtScheduleStatusInDB(
-          booking.CourtSchedule.id,
-          "available"
-        )
-      );
+      console.log(`📋 Encontradas ${finishedBookings.length} reservas terminadas para actualizar`);
       
-      await Promise.all(updatePromises);
-      console.log(`✅ Se actualizaron ${finishedBookings.length} horarios de cancha a estado "available"`);
+      // Actualizar el estado de cada horario a "available" y booking a "completed"
+      for (const booking of finishedBookings) {
+        try {
+          // Actualizar el estado del CourtSchedule a "available"
+          await courtScheduleProvider.updateCourtScheduleStatusInDB(
+            booking.CourtSchedule.id,
+            "available"
+          );
+          
+          // Actualizar el estado del Booking a "completed"
+          await bookingsProvider.updateBookingStatusInDB(
+            booking.id,
+            "completed"
+          );
+          
+          console.log(`✅ Reserva ${booking.id} actualizada - CourtSchedule: available, Booking: completed`);
+        } catch (error) {
+          console.error(`❌ Error actualizando reserva ${booking.id}:`, error.message);
+        }
+      }
+      
+      console.log(`✅ Proceso completado. Se actualizaron ${finishedBookings.length} reservas`);
     } else {
       console.log('ℹ️ No hay reservas terminadas para actualizar');
     }
@@ -42,6 +57,7 @@ const updateFinishedBookingsStatus = async () => {
     return finishedBookings.length;
   } catch (error) {
     console.error("❌ Error actualizando estados de horarios terminados:", error.message);
+    throw error;
   }
 };
 

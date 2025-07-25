@@ -29,6 +29,11 @@ module.exports = (sequelize, DataTypes) => {
         model: 'CourtSchedules',
         key: 'id'
       }
+    },
+    status: {
+      type: DataTypes.ENUM('pending', 'confirmed', 'cancelled', 'completed'),
+      allowNull: false,
+      defaultValue: 'pending'
     }
   }, {
     timestamps: true

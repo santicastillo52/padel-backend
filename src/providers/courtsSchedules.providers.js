@@ -173,7 +173,8 @@ const getFinishedBookingsFromDB = async (currentTime, currentDate) => {
       }
     }],
     where: {
-      date: currentDate
+      date: { [Op.lte]: currentDate }, // Fecha actual o anterior
+      status: { [Op.ne]: 'completed' } // Solo reservas que no estén ya completadas
     }
   });
 };

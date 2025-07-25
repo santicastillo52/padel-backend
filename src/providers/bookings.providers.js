@@ -9,7 +9,8 @@ const { Op } = require("sequelize");
  * @returns {Promise<Array>} - Lista de reservas que coinciden con los filtros.
  *
  */
-const getBookingsFromDB = async (filters = {}) => {
+const getBookingsFromDB = async (id, filters = {}) => {
+  /*
   const where = {};
 
   if (filters.date) {
@@ -23,11 +24,11 @@ const getBookingsFromDB = async (filters = {}) => {
   if (filters.courtId) {
     where.courtId = { [Op.eq]: filters.courtId };
   }
-
-  return await Booking.findAll({ where, include: [
+*/
+  return await Booking.findAll({ where: {userId: id}, include: [
     {
       model: CourtSchedule,
-      attributes: ["id", "start_time", "end_time"],
+      attributes: ["id", "start_time", "end_time", "day_of_week"],
       
     },
     {
@@ -84,6 +85,33 @@ const createBookingInDB = async (bookingData) => {
   }
 };
 
+/**
+ * Actualiza el estado de una reserva en la base de datos.
+ * @param {*} bookingData - Datos de la reserva a actualizar.
+ * @returns {Promise<Object>} - Reserva actualizada exitosamente.
+ * @throws {Error} - Si ocurre un error al actualizar el estado de la reserva en la base de datos.
+ */
+
+const updateBookingStatusInDB = async (id, status) => {
+  try {
+    const bookingToUpdate = await Booking.findByPk(id);
+    if (!bookingToUpdate) {
+      throw new Error("Booking not found");
+    }
+    bookingToUpdate.status = status;
+    await bookingToUpdate.save();
+    return bookingToUpdate;
+  } catch (error) {
+    throw new Error("Error updating booking status: " + error.message);
+  }
+};
+
+/**
+ * Elimina una reserva de la base de datos.
+ * @param {*} bookingData - Datos de la reserva a eliminar.
+ * @returns {Promise<Object>} - Reserva eliminada exitosamente.
+ * @throws {Error} - Si ocurre un error al eliminar la reserva en la base de datos.
+ */
 const deleteBookingInDB = async (bookingData) => {
   try {
     const bookingToDelete = await Booking.findByPk(bookingData.id);
@@ -100,5 +128,6 @@ module.exports = {
   getBookingsFromDB,
   createBookingInDB,
   getOneBookingByScheduleAndDateFromDB,
+  updateBookingStatusInDB,
   deleteBookingInDB
 };

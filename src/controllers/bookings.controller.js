@@ -2,8 +2,9 @@ const bookingsService = require('../services/bookings.services');
 
 getAllBookings = async (req, res) => {
     try {
+        const {id} = req.params;
         const filters = req.body;
-        const bookings = await bookingsService.fetchAllBookings(filters);
+        const bookings = await bookingsService.fetchAllBookings(id, filters);
         
         res.status(200).json(bookings);
     } catch (error) {
@@ -23,6 +24,17 @@ createBooking = async (req, res) => {
     }
 }
 
+updateBookingStatus = async (req, res) => {
+    try {
+        const {status} = req.body;
+        const id = req.params.id;
+        const updatedBooking = await bookingsService.updateBookingStatus(id, status);
+        res.status(200).json(updatedBooking);
+    } catch (error) {
+        res.status(500).json({ message: error.message || 'Error updating booking status' });
+    }
+}
+
 deleteBooking = async (req, res) => {
     try {
         const bookingData = req.body;
@@ -33,4 +45,4 @@ deleteBooking = async (req, res) => {
     }
 }
 
-module.exports = {getAllBookings, createBooking, deleteBooking};
+module.exports = {getAllBookings, createBooking, updateBookingStatus, deleteBooking};

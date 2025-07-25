@@ -8,8 +8,8 @@ const courtScheduleProvider = require("../providers/courtsSchedules.providers");
  * @returns {Promise<Array<Object>>} - Lista de reservas que coinciden con los filtros.
  */
 
-const fetchAllBookings = async (filters) => {
-  return await bookingsProvider.getBookingsFromDB(filters);
+const fetchAllBookings = async (id, filters) => {
+  return await bookingsProvider.getBookingsFromDB(id, filters);
 };
 
 /**
@@ -67,6 +67,11 @@ const addBooking = async (bookingData) => {
   }
 };
 
+const updateBookingStatus = async (id, status) => {
+  return await bookingsProvider.updateBookingStatusInDB(id, status);
+};
+
+
 const deleteBooking = async (bookingData) => {
   await bookingsProvider.deleteBookingInDB(bookingData);
   await courtScheduleProvider.updateCourtScheduleStatusInDB(
@@ -76,4 +81,4 @@ const deleteBooking = async (bookingData) => {
   return bookingData;
 };
 
-module.exports = { fetchAllBookings, addBooking, deleteBooking};
+module.exports = { fetchAllBookings, addBooking, updateBookingStatus, deleteBooking};
