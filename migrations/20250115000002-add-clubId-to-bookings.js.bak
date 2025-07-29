@@ -1,0 +1,44 @@
+'use strict';
+
+module.exports = {
+  up: async (queryInterface, Sequelize) => {
+    // Primero agregar la columna como nullable
+    await queryInterface.addColumn('Bookings', 'clubId', {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'Clubs',
+        key: 'id'
+      },
+      onUpdate: 'CASCADE',
+      onDelete: 'CASCADE'
+    });
+
+    // Poblar clubId en reservas existentes basándose en la cancha
+    await queryInterface.sequelize.query(`
+      UPDATE Bookings 
+      SET clubId = (
+        SELECT clubId 
+        FROM Courts 
+        WHERE Courts.id = Bookings.courtId
+      )
+      WHERE clubId IS NULL
+    `);
+
+    // Ahora cambiar a NOT NULL
+    await queryInterface.changeColumn('Bookings', 'clubId', {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'Clubs',
+        key: 'id'
+      },
+      onUpdate: 'CASCADE',
+      onDelete: 'CASCADE'
+    });
+  },
+
+  down: async (queryInterface, Sequelize) => {
+    await queryInterface.removeColumn('Bookings', 'clubId');
+  }
+}; 

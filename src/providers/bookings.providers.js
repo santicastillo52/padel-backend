@@ -9,23 +9,11 @@ const { Op } = require("sequelize");
  * @returns {Promise<Array>} - Lista de reservas que coinciden con los filtros.
  *
  */
-const getBookingsFromDB = async (id, filters = {}) => {
-  /*
+
+const getBookingsFromDB = async (id, status, filters = {}) => {
+  
   const where = {};
-
-  if (filters.date) {
-    where.date = { [Op.eq]: filters.date };
-  }
-
-  if (filters.userId) {
-    where.userId = { [Op.eq]: filters.userId };
-  }
-
-  if (filters.courtId) {
-    where.courtId = { [Op.eq]: filters.courtId };
-  }
-*/
-  return await Booking.findAll({ where: {userId: id}, include: [
+  const include = [
     {
       model: CourtSchedule,
       attributes: ["id", "start_time", "end_time", "day_of_week"],
@@ -45,7 +33,52 @@ const getBookingsFromDB = async (id, filters = {}) => {
       model: User,
       attributes: ["id", "name", "email"],
     }
-  ] });
+  ] 
+/*
+  if (filters.date) {
+    where.date = { [Op.eq]: filters.date };
+  }
+
+  if (filters.userId) {
+    where.userId = { [Op.eq]: filters.userId };
+  }
+
+  if (filters.courtId) {
+    where.courtId = { [Op.eq]: filters.courtId };
+  }*/
+
+  return await Booking.findAll({ where: {userId: id, status: status}, include});
+};
+
+/**
+ * Obtiene todas las reservas de un club específico desde la base de datos, con opción de filtrar por estado.
+ * @param {number} id - ID del club.
+ * @param {string} [status] - Estado de la reserva (ej: 'confirmed', 'pending', 'cancelled').
+ * @returns {Promise<Array<Object>>} Lista de reservas encontradas.
+ */
+const getReservationsFromDB = async (id, status) => {
+  const include = [
+    {
+      model: CourtSchedule,
+      attributes: ["id", "start_time", "end_time", "day_of_week"],
+      
+    },
+    {
+      model: Court,
+      attributes: ["id", "name"],
+      include: [
+        {
+          model: Club,
+          attributes: ["id", "name"],
+        }
+      ]
+    },
+    {
+      model: User,
+      attributes: ["id", "name", "email"],
+    }
+  ] 
+  return await Booking.findAll({ where: {clubId: id, status: status}, include});
 };
 
 /**
@@ -126,6 +159,7 @@ const deleteBookingInDB = async (bookingData) => {
 };
 module.exports = {
   getBookingsFromDB,
+  getReservationsFromDB,
   createBookingInDB,
   getOneBookingByScheduleAndDateFromDB,
   updateBookingStatusInDB,

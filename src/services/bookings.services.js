@@ -8,8 +8,18 @@ const courtScheduleProvider = require("../providers/courtsSchedules.providers");
  * @returns {Promise<Array<Object>>} - Lista de reservas que coinciden con los filtros.
  */
 
-const fetchAllBookings = async (id, filters) => {
-  return await bookingsProvider.getBookingsFromDB(id, filters);
+const fetchAllBookings = async (id, status, filters) => {
+  return await bookingsProvider.getBookingsFromDB(id, status, filters);
+};
+
+/**
+ * Obtiene una lista de reservas desde la base de datos, aplicando filtros opcionales.
+ *
+ * @param {Object} filters - Filtros para buscar reservas (ej. por usuario, cancha, fecha, etc.).
+ * @returns {Promise<Array<Object>>} - Lista de reservas que coinciden con los filtros.
+ */
+const fetchAllReservations = async (id, status) => {
+  return await bookingsProvider.getReservationsFromDB(id, status);
 };
 
 /**
@@ -81,4 +91,4 @@ const deleteBooking = async (bookingData) => {
   return bookingData;
 };
 
-module.exports = { fetchAllBookings, addBooking, updateBookingStatus, deleteBooking};
+module.exports = { fetchAllBookings, fetchAllReservations, addBooking, updateBookingStatus, deleteBooking};

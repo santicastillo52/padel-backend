@@ -3,8 +3,22 @@ const bookingsService = require('../services/bookings.services');
 getAllBookings = async (req, res) => {
     try {
         const {id} = req.params;
+        const {status} = req.query;
         const filters = req.body;
-        const bookings = await bookingsService.fetchAllBookings(id, filters);
+        const bookings = await bookingsService.fetchAllBookings(id, status, filters);
+        
+        res.status(200).json(bookings);
+    } catch (error) {
+        console.error('Error fetching bookings:', error);
+        res.status(500).json({ message: error.message ||  'Error retrieving bookings' });
+    }
+}
+getAllReservations = async (req, res) => {
+    try{
+        const {id} = req.params;
+        console.log(id);
+        const {status} = req.query;
+        const bookings = await bookingsService.fetchAllReservations(id, status);
         
         res.status(200).json(bookings);
     } catch (error) {
@@ -45,4 +59,4 @@ deleteBooking = async (req, res) => {
     }
 }
 
-module.exports = {getAllBookings, createBooking, updateBookingStatus, deleteBooking};
+module.exports = {getAllBookings, getAllReservations, createBooking, updateBookingStatus, deleteBooking};
