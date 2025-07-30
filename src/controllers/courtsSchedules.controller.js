@@ -3,7 +3,7 @@ const courtsSchedulesService = require('../services/courtsSchedules.services');
 const getAllCourtsSchedules = async (req, res) => {
     try {
         const filters = req.query;
-        const courtsSchedules = await courtsSchedulesService.fetchAllCourtsSchedules(filters,);
+        const courtsSchedules = await courtsSchedulesService.fetchAllCourtsSchedules(filters);
         
         res.status(200).json(courtsSchedules);
     } catch (error) {

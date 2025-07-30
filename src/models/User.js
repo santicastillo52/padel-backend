@@ -26,6 +26,15 @@ module.exports = (sequelize,DataTypes) => {
   position: {
     type: DataTypes.ENUM('reves', 'drive', 'both'),
     allowNull: true,
+  },
+  level: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    validate: {
+      min: 1,
+      max: 8
+    },
+    defaultValue: 1
   }  
 
   

@@ -16,9 +16,9 @@ const userProvider = require("../providers/users.providers");
  * @returns {Promise<Object>} Objeto con mensaje, token JWT y datos del usuario creado.
  */
 
-const createUser = async ({ name, last_name, email, password, role, position }) => {
+const createUser = async ({ name, last_name, email, password, role, position, level}) => {
   // Validar que todos los campos requeridos estén presentes
-  if (!name || !email || !password || !role) {
+  if (!name || !email || !password || !role || !level) {
     throw new Error('Todos los campos son obligatorios');
   }
 
@@ -45,6 +45,7 @@ const createUser = async ({ name, last_name, email, password, role, position }) 
     password: hashedPassword,
     role,
     position,
+    level,
   });
 
   // Generar token JWT
@@ -64,6 +65,7 @@ const createUser = async ({ name, last_name, email, password, role, position }) 
       email: newUser.email,
       role: newUser.role,
       position: newUser.position,
+      level: newUser.level,
     },
   };
 };
