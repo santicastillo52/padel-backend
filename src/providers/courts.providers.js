@@ -34,6 +34,8 @@ getCourtsFromDB = async (filters = {}) => {
     include: { model: Club, attributes: ["name"] },
   });
 };
+
+
 getAvailableCourtsFromDB = async (filters = {}) => {
   const { day_of_week, start_time, end_time, clubId, wall_type, court_type } = filters;
   
@@ -179,17 +181,6 @@ deleteCourtFromDb = async (courtId) => {
   return courtToDelete;
 }
 
-/**
- * Obtiene canchas disponibles para un día y horario específico.
- * Retorna canchas que tienen horarios configurados para el día y rango solicitado.
- *
- * @param {Object} filters - Filtros para buscar canchas disponibles.
- * @param {string} filters.day_of_week - Día de la semana.
- * @param {string} filters.start_time - Hora de inicio.
- * @param {string} filters.end_time - Hora de fin.
- * @param {number} [filters.clubId] - ID del club (opcional).
- * @returns {Promise<Array<Object>>} - Lista de canchas disponibles.
- */
 
 module.exports = { 
   createCourtInDB, 

@@ -25,9 +25,9 @@ const getAllImages = async (req, res) => {
  * @throws {Error} - Si ocurre un error al subir la imagen
  */
 const uploadImage = async (req, res) => {
-  const courtData = req.body;
+  const courtData = req.file;
   try {
-    const response = await imageService.handleUpdate(courtData);
+    const response = await imageService.handleUpload(courtData);
     res.status(201).json(response);
   } catch (error) {
     res.status(500).json({ message: error.message || 'error uploading image'});

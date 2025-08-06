@@ -109,8 +109,9 @@ const getMyClubFromDB = async (id) => {
  * @returns {Promise<Object>} - Club creado.
  */
 
-const createClubInDB = async (clubData) => {
-  const newClub = await Club.create(clubData);
+const createClubInDB = async (clubData, transaction ) => {
+ 
+  const newClub = await Club.create(clubData, transaction);
   return newClub;
 };
 

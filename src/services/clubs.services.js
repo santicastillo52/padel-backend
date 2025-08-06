@@ -1,4 +1,8 @@
 const clubProvider = require("../providers/clubs.providers");
+const imageService = require("./images.services");
+const fs = require('fs').promises;
+const path = require('path');
+const sequelize = require('../config/database');
 
 /**
  * Obtiene todos los clubes que coinciden con los filtros proporcionados.
@@ -56,11 +60,62 @@ fetchMyClub = async (id) => {
  * @throws {Error} - Si el usuario ya tiene un club registrado.
  */
 
-createClub = async (clubData) => {
-  const existingClub = await clubProvider.findClubByUserId(clubData.UserId);
-  if (existingClub) throw new Error("Este usuario ya tiene un club");
+createClub = async (clubData, file) => {
+ 
+  
+  const t = await sequelize.transaction();
+  
+  try {
+  
+    const userId = parseInt(clubData.UserId);
+    const existingClub = await clubProvider.findClubByUserId(userId);
+    if (existingClub) {
+      throw new Error("Este usuario ya tiene un club");
+    }
 
-  return await clubProvider.createClubInDB(clubData);
+   
+    if (!file) {
+      throw new Error('There is no image');
+    }
+
+
+    const newClub = await clubProvider.createClubInDB(clubData, t);
+
+   
+    const filename = `${Date.now()}_${file.originalname}`;
+    const filePath = path.join(__dirname, '../../uploads', filename);
+    await fs.writeFile(filePath, file.buffer);
+
+    
+    const imageData = {
+      file: { filename },
+      type: 'club',
+      clubId: newClub.id
+    };
+    await imageService.handleUpload(imageData, t);
+
+ 
+    await t.commit();
+
+    return newClub;
+
+  } catch (error) {
+  
+    await t.rollback();
+    
+    //Limpiar archivo si se guardó pero falló la transacción
+    if (file) {
+      const filename = `${Date.now()}_${file.originalname}`;
+      const filePath = path.join(__dirname, '../../uploads', filename);
+      try {
+        await fs.unlink(filePath);
+      } catch (unlinkError) {
+        console.error('Error eliminando archivo después de rollback:', unlinkError);
+      }
+    }
+    
+    throw error;
+  }
 };
 
 module.exports = { fetchAllClubs, fetchDropdownClubs, fetchOneClub, fetchMyClub, createClub };

@@ -57,7 +57,11 @@ getMyClub = async (req, res) => {
 createClub = async (req, res) => {
     try {
         const clubData = req.body;
-        const newClub = await clubsService.createClub(clubData);
+        // Buscar el archivo en req.files (puede tener cualquier nombre de campo)
+        const files = req.files || [];
+        const file = files.length > 0 ? files[0] : null;
+        
+        const newClub = await clubsService.createClub(clubData, file);
         
         res.status(201).json(newClub);
     } catch (error) {
