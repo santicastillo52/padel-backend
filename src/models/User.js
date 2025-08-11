@@ -35,9 +35,12 @@ module.exports = (sequelize,DataTypes) => {
       max: 8
     },
     defaultValue: 1
-  }  
-
-  
+  },
+  gender: {
+    type: DataTypes.ENUM('male', 'female', 'unspecified'),
+    allowNull: false,
+    defaultValue: 'male'
+  }
 }, 
 {
   tableName: 'Users',
