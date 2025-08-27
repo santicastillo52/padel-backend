@@ -15,9 +15,10 @@ const getAllCourtsSchedules = async (req, res) => {
 const createCourtsSchedules = async (req, res) => {
     try {
         const courtId = req.params.id;
+        const userId = req.user.id;
        
         const newSchedule = req.body;
-        const createdSchedule = await courtsSchedulesService.createCourtsSchedules(newSchedule, courtId);
+        const createdSchedule = await courtsSchedulesService.createCourtsSchedules(newSchedule, courtId, userId);
         
         res.status(201).json(createdSchedule);
     } catch (error) {
@@ -25,14 +26,13 @@ const createCourtsSchedules = async (req, res) => {
         res.status(500).json({ message: error.message || 'error creating courts schedule'
         });
     }
-
-    
 }
 
 const deleteCourtSchedule = async (req, res) => {
     try { 
         const id = req.params.id;
-        const deletedSchedule = await courtsSchedulesService.deleteCourtSchedule(id);
+        const userId = req.user.id;
+        const deletedSchedule = await courtsSchedulesService.deleteCourtSchedule(id, userId);
         res.status(200).json(deletedSchedule);
     } catch (error) {
         console.error('Error deleting courts schedule:', error);

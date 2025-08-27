@@ -28,7 +28,7 @@ const fetchAllCourtsSchedules = async (filters = {}) => {
  *
  * @returns {Promise<Array<Object>>} - Lista de horarios creados exitosamente.
  */
-const createCourtsSchedules = async (scheduleData, id) => {
+const createCourtsSchedules = async (scheduleData, id, userId) => {
  
   const courtId = parseInt(id);
   console.log(typeof courtId);
@@ -44,11 +44,16 @@ const createCourtsSchedules = async (scheduleData, id) => {
   for (const schedule of scheduleData) {
     const { day_of_week, start_time, end_time } = schedule;
 
-    //Verificar que la cancha existe
-    const court = await Court.findByPk(courtId);
+    //Verificar que la cancha existe y pertenece al usuario
+    const court = await Court.findByPk(courtId, {
+      include: [{
+        model: sequelize.models.Club,
+        where: { UserId: userId }
+      }]
+    });
 
     if (!court) {
-      throw new Error(`La cancha con ID: ${courtId} no existe.`);
+      throw new Error(`La cancha con ID: ${courtId} no existe o no te pertenece.`);
     }
 
     if (start_time >= end_time) {
@@ -89,13 +94,22 @@ const createCourtsSchedules = async (scheduleData, id) => {
 /**
  * 
  * @param {number} id - ID del horario a eliminar.
- *  @throws {Error} - Si no se encuentra un horario con el ID proporcionado.
+ * @param {number} userId - ID del usuario que intenta eliminar el horario.
+ * @throws {Error} - Si no se encuentra un horario con el ID proporcionado.
+ * @throws {Error} - Si el horario no pertenece al usuario.
  * @returns {Promise<Object>} - Horario eliminado.
  */
-const deleteCourtSchedule = async (id) => {
+const deleteCourtSchedule = async (id, userId) => {
+  // Verificar que el schedule existe y pertenece al usuario
+  const schedule = await courtScheduleProvider.getCourtScheduleWithOwnership(id, userId);
+  
+  if (!schedule) {
+    throw new Error(`No se encontró un horario con ID: ${id} o no te pertenece.`);
+  }
+  
   const deletedSchedule = await courtScheduleProvider.deleteCourtsSchedulesFromDB(id);
   if (!deletedSchedule) {
-    throw new Error(`No se encontró un horario con ID: ${id}`);
+    throw new Error(`Error al eliminar el horario con ID: ${id}`);
   }
   return deletedSchedule;
 }

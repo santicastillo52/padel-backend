@@ -179,6 +179,27 @@ const getFinishedBookingsFromDB = async (currentTime, currentDate) => {
   });
 };
 
+/**
+ * Obtiene un horario de cancha verificando que pertenece al usuario especificado.
+ *
+ * @param {number} scheduleId - ID del horario a buscar.
+ * @param {number} userId - ID del usuario propietario.
+ * @returns {Promise<Object|null>} - Horario encontrado si pertenece al usuario, null en caso contrario.
+ */
+const getCourtScheduleWithOwnership = async (scheduleId, userId) => {
+  const { Court, Club } = require('../models');
+  
+  return await CourtSchedule.findByPk(scheduleId, {
+    include: [{
+      model: Court,
+      include: [{
+        model: Club,
+        where: { UserId: userId }
+      }]
+    }]
+  });
+};
+
 module.exports = {
   getCourtsSchedulesFromDB,
   createCourtsSchedulesInDB,
@@ -187,5 +208,6 @@ module.exports = {
   deleteCourtsSchedulesFromDB,
   updateCourtScheduleStatusInDB,
   getCourtSchedulesByDateFromDB,
-  getFinishedBookingsFromDB
+  getFinishedBookingsFromDB,
+  getCourtScheduleWithOwnership
 };
