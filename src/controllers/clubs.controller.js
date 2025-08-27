@@ -40,11 +40,11 @@ getOneClub = async (req, res) => {
 
 getMyClub = async (req, res) => {
     try {
-        const { id } = req.params;
-        const club = await clubsService.fetchMyClub(id);
+        const userId = req.user.id; 
+        const club = await clubsService.fetchMyClub(userId);
         
         if (!club) {
-            return res.status(404).json({ message: error.message || 'Club not found' });
+            return res.status(404).json({ message: 'No tienes un club registrado' });
         }
         
         res.status(200).json(club);

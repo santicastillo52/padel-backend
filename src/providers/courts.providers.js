@@ -181,6 +181,24 @@ deleteCourtFromDb = async (courtId) => {
   return courtToDelete;
 }
 
+/**
+ * Verifica que un club pertenece a un usuario específico
+ * @param {number} clubId - ID del club
+ * @param {number} userId - ID del usuario
+ * @param {Object} transaction - Transacción opcional
+ */
+findClubByIdAndUserId = async (clubId, userId, transaction = null) => {
+  const options = {
+    where: { id: clubId, UserId: userId }
+  };
+  
+  if (transaction) {
+    options.transaction = transaction;
+  }
+  
+  return await Club.findOne(options);
+}
+
 
 module.exports = { 
   createCourtInDB, 
@@ -189,5 +207,6 @@ module.exports = {
   findCourtByNameExcludingId, 
   putCourtByIdFromDB, 
   deleteCourtFromDb,
-  getAvailableCourtsFromDB
+  getAvailableCourtsFromDB,
+  findClubByIdAndUserId
 };

@@ -41,6 +41,7 @@ getCourtById = async (req, res) => {
         // Extraer canchas del form-data
         let courts = [];
         const files = req.files || [];
+        const userId = req.user.id;
         
         // Verificar si los datos vienen en formato anidado
         if (req.body.courts && Array.isArray(req.body.courts)) {
@@ -64,7 +65,7 @@ getCourtById = async (req, res) => {
             }
         });
         
-        const newCourts = await courtsService.addNewCourts(courts, files);
+        const newCourts = await courtsService.addNewCourts(courts, files, userId);
         
         res.status(201).json(newCourts);
     } catch (error) {

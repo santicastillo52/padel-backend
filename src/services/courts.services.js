@@ -131,7 +131,7 @@ const fetchCourtById = async (courtId) => {
  * @throws {Error} Si ocurre un error al crear una cancha en la base de datos.
  */
 //hay que reveer como enviamos el form data desde el frontend
-const addNewCourts = async (courtList, files) => {
+const addNewCourts = async (courtList, files, userId) => {
   const t = await sequelize.transaction();
   let uploadedFilePaths = [];
 
@@ -141,6 +141,12 @@ const addNewCourts = async (courtList, files) => {
     for (let i = 0; i < courtList.length; i++) {
       const courtData = courtList[i];
       const file = files[i]; // Obtener el archivo correspondiente
+      
+      // Verificar que el club pertenece al usuario autenticado
+      const club = await courtsProvider.findClubByIdAndUserId(courtData.clubId, userId, t);
+      if (!club) {
+        throw new Error(`No tienes permisos para crear canchas en el club con ID ${courtData.clubId}`);
+      }
       
       const existingCourt = await Court.findOne({
         where: {
