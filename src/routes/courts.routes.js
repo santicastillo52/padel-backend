@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.get('/courts', courtsController.getAllCourts);
 router.get('/courts/:id', JWTmiddleware, courtsController.getCourtById);
-router.get('/courts-available', courtsController.getAvailableCourts);
+router.get('/courts-available', JWTmiddleware,  courtsController.getAvailableCourts);
 router.post('/courts-create/', JWTmiddleware, uploadMemory.any(), courtsController.createCourts);
 router.patch('/court-edit/:id', JWTmiddleware, checkCourtOwnership, courtsController.editCourt);
 router.delete('/court-delete/:id', JWTmiddleware, checkCourtOwnership, courtsController.deleteCourt);
