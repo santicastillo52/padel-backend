@@ -17,17 +17,6 @@ const userProvider = require("../providers/users.providers");
  */
 
 const createUser = async ({ name, last_name, email, password, role, position, level, gender}) => {
-  // Validar que todos los campos requeridos estén presentes
-  if (!name || !email || !password || !role || !level || !gender) {
-    throw new Error('Todos los campos son obligatorios');
-  }
-
-  // Validar formato de email
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    throw new Error('Formato de email inválido');
-  }
-
   // Verificar si el usuario ya existe
   const existingUser = await User.findOne({ where: { email } });
   if (existingUser) {

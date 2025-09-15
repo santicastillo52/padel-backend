@@ -9,6 +9,6 @@ const { checkImageOwnership } = require('../middlewares/adminCheckMDW');
 
 router.get('/images', imageController.getAllImages);
 router.patch('/images/:id', JWTmiddleware, checkImageOwnership, uploadMemory.single('image'), imageController.updateImage);
-router.post('/images/upload', JWTmiddleware, checkImageOwnership, uploadMemory.single('image'), imageController.uploadImage);
+router.post('/images/upload', JWTmiddleware, uploadMemory.single('image'), imageController.uploadImage);
 
 module.exports = router;

@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
     },
     court_type: {
-      type: DataTypes.BOOLEAN,
+      type: DataTypes.ENUM('indoor', 'outdoor'),
       allowNull: false,
     },
     available: {
