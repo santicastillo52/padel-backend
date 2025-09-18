@@ -26,6 +26,7 @@ const login = async (req, res, next) => {
     });
 
     return res.json({
+      success:true,
       message: 'Authentication successful',
       token,
       user: { id: user.id, name: user.name, role: user.role }
@@ -52,6 +53,7 @@ const register = async (req, res) => {
     // Manejar el error de usuario duplicado
     if (error.message === 'El usuario ya existe') {
       return res.status(409).json({ 
+        success: false,
         message: 'El usuario ya existe',
         error: 'EMAIL_DUPLICATE'
       });
@@ -59,6 +61,7 @@ const register = async (req, res) => {
     
     // Error genérico para otros casos
     res.status(500).json({ 
+      success: false,
       message: 'Error interno del servidor',
       error: 'INTERNAL_ERROR'
     });

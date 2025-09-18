@@ -1,5 +1,6 @@
 const bookingsProvider = require("../providers/bookings.providers");
 const courtScheduleProvider = require("../providers/courtsSchedules.providers");
+const { Club } = require("../models");
 
 /**
  * Obtiene una lista de reservas desde la base de datos, aplicando filtros opcionales.
@@ -8,18 +9,26 @@ const courtScheduleProvider = require("../providers/courtsSchedules.providers");
  * @returns {Promise<Array<Object>>} - Lista de reservas que coinciden con los filtros.
  */
 
-const fetchAllBookings = async (id, status, filters) => {
-  return await bookingsProvider.getBookingsFromDB(id, status, filters);
-};
-
-/**
- * Obtiene una lista de reservas desde la base de datos, aplicando filtros opcionales.
- *
- * @param {Object} filters - Filtros para buscar reservas (ej. por usuario, cancha, fecha, etc.).
- * @returns {Promise<Array<Object>>} - Lista de reservas que coinciden con los filtros.
- */
-const fetchAllReservations = async (id, status) => {
-  return await bookingsProvider.getReservationsFromDB(id, status);
+const fetchAllBookings = async (id, role, status) => {
+  try {
+    if (role === 'admin') {
+      const club = await Club.findOne({
+        where: { UserId: id }, 
+        attributes: ['id']
+      });
+      
+      if (!club) {
+        throw new Error("No se encontró el club asociado al administrador");
+      }
+      
+      return await bookingsProvider.getBookingsFromDB(club.id, status, role);
+    }
+    
+    return await bookingsProvider.getBookingsFromDB(id, status, role);
+    
+  } catch (error) {
+    throw new Error(`Error fetching bookings: ${error.message}`);
+  }
 };
 
 /**
@@ -91,4 +100,4 @@ const deleteBooking = async (bookingData) => {
   return bookingData;
 };
 
-module.exports = { fetchAllBookings, fetchAllReservations, addBooking, updateBookingStatus, deleteBooking};
+module.exports = { fetchAllBookings, addBooking, updateBookingStatus, deleteBooking};

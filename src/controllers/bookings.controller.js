@@ -1,40 +1,43 @@
 const bookingsService = require('../services/bookings.services');
 
-getAllBookings = async (req, res) => {
+const getAllBookings = async (req, res) => {
     try {
-        const {id} = req.params;
+        const {id} = req.user;
+        const {role} = req.user
         const {status} = req.query;
-        const filters = req.body;
-        const bookings = await bookingsService.fetchAllBookings(id, status, filters);
+        const bookings = await bookingsService.fetchAllBookings(id, role, status);
         
-        res.status(200).json(bookings);
+        res.status(200).json({
+            success: true,
+            message: 'Bookings retrieved successfully',
+            data: bookings
+        });
     } catch (error) {
         console.error('Error fetching bookings:', error);
-        res.status(500).json({ message: error.message ||  'Error retrieving bookings' });
-    }
-}
-getAllReservations = async (req, res) => {
-    try{
-        const {id} = req.params;
-        console.log(id);
-        const {status} = req.query;
-        const bookings = await bookingsService.fetchAllReservations(id, status);
-        
-        res.status(200).json(bookings);
-    } catch (error) {
-        console.error('Error fetching bookings:', error);
-        res.status(500).json({ message: error.message ||  'Error retrieving bookings' });
+        res.status(500).json({ 
+            success: false, 
+            message: error.message || 'Error retrieving bookings',
+            error: 'BOOKING_FETCH_ERROR'
+        });
     }
 }
 
-createBooking = async (req, res) => {
+const createBooking = async (req, res) => {
     try {
         const bookingData = req.body;
         const newBooking = await bookingsService.addBooking(bookingData);
         
-        res.status(201).json(newBooking);
+        res.status(201).json({
+            success: true,
+            message: 'Booking created successfully',
+            data: newBooking
+        });
     } catch (error) {
-        res.status(500).json({ message: error.message || 'Error creating booking' });
+        res.status(500).json({ 
+            success: false, 
+            message: error.message || 'Error creating booking',
+            error: 'BOOKING_CREATE_ERROR'
+        });
     }
 }
 
@@ -43,9 +46,17 @@ updateBookingStatus = async (req, res) => {
         const {status} = req.body;
         const id = req.params.id;
         const updatedBooking = await bookingsService.updateBookingStatus(id, status);
-        res.status(200).json(updatedBooking);
+        res.status(200).json({
+            success: true,
+            message: 'Booking status updated successfully',
+            data: updatedBooking
+        });
     } catch (error) {
-        res.status(500).json({ message: error.message || 'Error updating booking status' });
+        res.status(500).json({ 
+            success: false, 
+            message: error.message || 'Error updating booking status',
+            error: 'BOOKING_UPDATE_ERROR'
+        });
     }
 }
 
@@ -53,10 +64,18 @@ deleteBooking = async (req, res) => {
     try {
         const bookingData = req.body;
         const deletedBooking = await bookingsService.deleteBooking(bookingData);
-        res.status(200).json(deletedBooking);
+        res.status(200).json({
+            success: true,
+            message: 'Booking deleted successfully',
+            data: deletedBooking
+        });
     } catch (error) {
-        res.status(500).json({ message: error.message || 'Error deleting booking' });
+        res.status(500).json({ 
+            success: false, 
+            message: error.message || 'Error deleting booking',
+            error: 'BOOKING_DELETE_ERROR'
+        });
     }
 }
 
-module.exports = {getAllBookings, getAllReservations, createBooking, updateBookingStatus, deleteBooking};
+module.exports = {getAllBookings, createBooking, updateBookingStatus, deleteBooking};

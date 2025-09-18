@@ -9,6 +9,7 @@ const checkUserAccessOrAdmin = async (req, res, next) => {
   try {
     const authenticatedUserId = req.user.id;
     const targetUserId = parseInt(req.params.id);
+    //Dato importante: el role lo sacamos desde el JWT
     const userRole = req.user.role;
 
     // Si es cliente, solo puede acceder a sus propios datos

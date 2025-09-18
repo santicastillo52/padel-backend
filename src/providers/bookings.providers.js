@@ -5,81 +5,41 @@ const { Op } = require("sequelize");
  * @param {Object} filters - Filtros para buscar reservas.
  * @param {string} filters.date - Fecha de la reserva.
  * @param {number} filters.userId - ID del usuario que hizo la reserva.
- * @param {number} filters.courtId - ID de la cancha reservada.
- * @returns {Promise<Array>} - Lista de reservas que coinciden con los filtros.
+ * @param {number} filters.courtId - ID ada.
+ * @returns {Promise<Array>} - Lista de reservas que coincidede la cancha reservn con los filtros.
  *
  */
 
-const getBookingsFromDB = async (id, status, filters = {}) => {
+const getBookingsFromDB = async (id, status, role) => {
+
+  const include = [
+    {
+      model: CourtSchedule,
+      attributes: ["id", "start_time", "end_time", "day_of_week"],
+      
+    },
+    {
+      model: Court,
+      attributes: ["id", "name"],
+      include: [
+        {
+          model: Club,
+          attributes: ["id", "name"],
+        }
+      ]
+    },
+    {
+      model: User,
+      attributes: ["id", "name", "email"],
+    }
+  ] 
+
   
-  const where = {};
-  const include = [
-    {
-      model: CourtSchedule,
-      attributes: ["id", "start_time", "end_time", "day_of_week"],
-      
-    },
-    {
-      model: Court,
-      attributes: ["id", "name"],
-      include: [
-        {
-          model: Club,
-          attributes: ["id", "name"],
-        }
-      ]
-    },
-    {
-      model: User,
-      attributes: ["id", "name", "email"],
-    }
-  ] 
-/*
-  if (filters.date) {
-    where.date = { [Op.eq]: filters.date };
-  }
+  const whereClause = role === 'admin' ? { clubId: id, status: status } : { userId: id, status: status };
 
-  if (filters.userId) {
-    where.userId = { [Op.eq]: filters.userId };
-  }
-
-  if (filters.courtId) {
-    where.courtId = { [Op.eq]: filters.courtId };
-  }*/
-
-  return await Booking.findAll({ where: {userId: id, status: status}, include});
+  return await Booking.findAll({ where: whereClause, include});
 };
 
-/**
- * Obtiene todas las reservas de un club específico desde la base de datos, con opción de filtrar por estado.
- * @param {number} id - ID del club.
- * @param {string} [status] - Estado de la reserva (ej: 'confirmed', 'pending', 'cancelled').
- * @returns {Promise<Array<Object>>} Lista de reservas encontradas.
- */
-const getReservationsFromDB = async (id, status) => {
-  const include = [
-    {
-      model: CourtSchedule,
-      attributes: ["id", "start_time", "end_time", "day_of_week"],
-      
-    },
-    {
-      model: Court,
-      attributes: ["id", "name"],
-      include: [
-        {
-          model: Club,
-          attributes: ["id", "name"],
-        }
-      ]
-    },
-    {
-      model: User,
-      attributes: ["id", "name", "email"],
-    }
-  ] 
-  return await Booking.findAll({ where: {clubId: id, status: status}, include});
-};
 
 /**
  * Obtiene una reserva específica de la base de datos según el ID del horario de la cancha y la fecha.
@@ -159,7 +119,6 @@ const deleteBookingInDB = async (bookingData) => {
 };
 module.exports = {
   getBookingsFromDB,
-  getReservationsFromDB,
   createBookingInDB,
   getOneBookingByScheduleAndDateFromDB,
   updateBookingStatusInDB,

@@ -1,7 +1,7 @@
 const express = require('express');
 const authController = require('../controllers/auth.controller');
-const validator = require('../middlewares/validatorJoiMdw')
-const { loginUserSchema, registerUserSchema } = require('../schemas/auth')
+const validator = require('../middlewares/validatorJoiMdw');
+const { loginUserSchema, registerUserSchema } = require('../schemas/auth');
 
 const router = express.Router();
 
@@ -9,6 +9,7 @@ const router = express.Router();
  * @swagger
  * /auth/login:
  *   post:
+ *     tags: [Auth]
  *     summary: Login de usuario
  *     requestBody:
  *       content:
@@ -20,7 +21,6 @@ const router = express.Router();
  *               password: { type: string }
  *     responses:
  *       200: { description: OK }
- *       401: { description: No autorizado }
  *       401: { description: El usuario no existe }
  */
 router.post('/login', validator(loginUserSchema), authController.login);
@@ -29,6 +29,7 @@ router.post('/login', validator(loginUserSchema), authController.login);
  * @swagger
  * /auth/register:
  *   post:
+ *     tags: [Auth]
  *     summary: Register de usuario
  *     requestBody:
  *       content:
@@ -50,7 +51,7 @@ router.post('/login', validator(loginUserSchema), authController.login);
  *       500: {description: error del servidor}
  */
 router.post('/register', validator(registerUserSchema), authController.register);
-//agregarlogout
+
 
 
 module.exports = router;
