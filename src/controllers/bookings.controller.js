@@ -46,7 +46,8 @@ const updateBookingStatus = async (req, res) => {
     try {
         const {status} = req.body;
         const bookingId = req.params.id;
-        const updatedBooking = await bookingsService.updateBookingStatus(bookingId, status);
+        const userRole= req.user.role;
+        const updatedBooking = await bookingsService.updateBookingStatus(bookingId, status, userRole);
         res.status(200).json({
             success: true,
             message: 'Booking status updated successfully',

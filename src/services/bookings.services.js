@@ -1,6 +1,7 @@
 const bookingsProvider = require("../providers/bookings.providers");
 const courtScheduleProvider = require("../providers/courtsSchedules.providers");
 const { Club } = require("../models");
+const { DateTime } = require('luxon');
 
 /**
  * Obtiene una lista de reservas desde la base de datos, aplicando filtros opcionales.
@@ -90,12 +91,39 @@ const addBooking = async (bookingData, userId) => {
   }
 };
 
-const updateBookingStatus = async (bookingId, status) => {
-  return await bookingsProvider.updateBookingStatusInDB(bookingId, status);
+const updateBookingStatus = async (bookingId, status, userRole) => {
+  if(status === 'cancelled' && userRole === "client"){
+    const booking = await bookingsProvider.getBookingsFromDB({ 
+      bookingId, 
+      single: true 
+    });
+    const now = DateTime.now().setZone('America/Argentina/Buenos_Aires');
+    const bookingDateTime = DateTime.fromISO(
+      `${booking.date}T${booking.CourtSchedule.start_time}`,
+      { zone: 'America/Argentina/Buenos_Aires' }
+    );
+    
+    const hoursUntilBooking = bookingDateTime.diff(now, 'hours').hours;
+    
+    if (hoursUntilBooking < 12) {
+      throw new Error(`No puedes cancelar la reserva. Faltan ${Math.round(hoursUntilBooking)} horas. El límite mínimo es de 12 horas.`);
+    }
+  }
+  
+  const updatedBooking = await bookingsProvider.updateBookingStatusInDB(bookingId, status);
+
+  // Liberar courtSchedule automáticamente
+  await courtScheduleProvider.updateCourtScheduleStatusInDB(
+    updatedBooking.courtScheduleId, 
+    "available"
+  );
+  
+  return updatedBooking;
 };
 
 
 const deleteBooking = async (bookingId) => {
+  // para eliminar una reserva debe tener status = completed
   const bookingToDelete = await bookingsProvider.getBookingsFromDB({ 
     bookingId, 
     single: true 
@@ -103,14 +131,14 @@ const deleteBooking = async (bookingId) => {
   if (!bookingToDelete) {
     throw new Error("Booking not found");
   }
-  
+  if(bookingToDelete.status === "completed"){
   await bookingsProvider.deleteBookingInDB(bookingId);
   
   await courtScheduleProvider.updateCourtScheduleStatusInDB(
     bookingToDelete.courtScheduleId,
     "available"
   );
-  
+}
   return bookingToDelete;
 };
 

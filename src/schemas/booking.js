@@ -1,6 +1,5 @@
 const Joi = require('joi');
 
-//como seria esto? 
 const bookingSchema = Joi.object({
     status: Joi.string().valid('confirmed', 'pending', 'completed', 'cancelled')
 });

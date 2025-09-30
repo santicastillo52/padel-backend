@@ -1,5 +1,4 @@
 const { Booking, Club, Court, CourtSchedule, User } = require("../models");
-const { Op } = require("sequelize");
 /**
  * Función unificada para obtener reservas de la base de datos con diferentes filtros
  * @param {Object} options - Opciones de búsqueda
