@@ -16,10 +16,16 @@ require('./config/passport')(passport);
 
 const app = express();
 
+// meter en .env los url del back
+
 // Middleware
 app.use(express.json());
 app.use(passport.initialize());
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:4200',
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
+
+}));
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use('/api-docs',swaggerUI.serve, swaggerUI.setup(specs));
 
@@ -31,7 +37,7 @@ app.get("/", (req, res) => {
 app.use('/auth', loginRoutes);
 app.use(userRoutes);
 app.use(clubsRoutes);
-app.use(bookingsRoutes);
+app.use('/bookings',bookingsRoutes);
 app.use(courtSchedulesRoutes);
 app.use(courtsRoutes);
 app.use(imagesRoutes);

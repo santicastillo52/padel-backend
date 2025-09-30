@@ -114,7 +114,7 @@ const checkBookingOwnershipOrAdmin = async (req, res, next) => {
       }
       
       return res.status(403).json({ 
-        message: 'Solo puedes modificar reservas de tus clubs',
+        message: 'Solo puedes modificar reservas de tu club',
         error: 'FORBIDDEN_ACCESS'
       });
     }

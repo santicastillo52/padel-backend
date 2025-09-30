@@ -21,10 +21,10 @@ const fetchAllBookings = async (id, role, status) => {
         throw new Error("No se encontró el club asociado al administrador");
       }
       
-      return await bookingsProvider.getBookingsFromDB(club.id, status, role);
+      return await bookingsProvider.getBookingsFromDB({ id: club.id, status, role });
     }
     
-    return await bookingsProvider.getBookingsFromDB(id, status, role);
+    return await bookingsProvider.getBookingsFromDB({ id, status, role });
     
   } catch (error) {
     throw new Error(`Error fetching bookings: ${error.message}`);
@@ -48,7 +48,7 @@ const fetchAllBookings = async (id, role, status) => {
  * @throws {Error} - Si ocurre un error al crear la reserva.
  */
 
-const addBooking = async (bookingData) => {
+const addBooking = async (bookingData, userId) => {
   try {
     const courtSchedule = await courtScheduleProvider.getOneCourtScheduleFromDB(
       bookingData
@@ -63,17 +63,21 @@ const addBooking = async (bookingData) => {
       throw new Error("La cancha esta en mantenimiento.");
     }
     const existingBooking =
-      await bookingsProvider.getOneBookingByScheduleAndDateFromDB(
-        bookingData.courtScheduleId,
-        bookingData.date
-      );
+      await bookingsProvider.getBookingsFromDB({
+        courtScheduleId: bookingData.courtScheduleId,
+        date: bookingData.date,
+        single: true
+      });
 
     if (existingBooking) {
       throw new Error("Ya existe una reserva para ese horario y fecha.");
     }
 
-
-    const newBooking = await bookingsProvider.createBookingInDB(bookingData);
+    const completedBookingData = {
+      ...bookingData,
+      userId: userId
+    }
+    const newBooking = await bookingsProvider.createBookingInDB(completedBookingData);
     
     await courtScheduleProvider.updateCourtScheduleStatusInDB(
       bookingData.courtScheduleId,
@@ -82,22 +86,32 @@ const addBooking = async (bookingData) => {
     
     return newBooking;
   } catch (error) {
-    throw new Error("Error creating booking: " + error.message);
+    throw new Error("Error creating booking: ", error.message);
   }
 };
 
-const updateBookingStatus = async (id, status) => {
-  return await bookingsProvider.updateBookingStatusInDB(id, status);
+const updateBookingStatus = async (bookingId, status) => {
+  return await bookingsProvider.updateBookingStatusInDB(bookingId, status);
 };
 
 
-const deleteBooking = async (bookingData) => {
-  await bookingsProvider.deleteBookingInDB(bookingData);
+const deleteBooking = async (bookingId) => {
+  const bookingToDelete = await bookingsProvider.getBookingsFromDB({ 
+    bookingId, 
+    single: true 
+  });
+  if (!bookingToDelete) {
+    throw new Error("Booking not found");
+  }
+  
+  await bookingsProvider.deleteBookingInDB(bookingId);
+  
   await courtScheduleProvider.updateCourtScheduleStatusInDB(
-    bookingData.courtScheduleId,
+    bookingToDelete.courtScheduleId,
     "available"
   );
-  return bookingData;
+  
+  return bookingToDelete;
 };
 
 module.exports = { fetchAllBookings, addBooking, updateBookingStatus, deleteBooking};

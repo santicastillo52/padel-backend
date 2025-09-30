@@ -7,7 +7,7 @@ const checkUserOwnership = require('../middlewares/userCheckMdw');
 const router = express.Router();
 
 router.get('/users', JWTmiddleware, userController.getAllUsers);
-router.get('/users/:id', userController.getUserById);
+router.get('/users/:id', JWTmiddleware, userController.getUserById);
 router.patch('/users-update/:id', JWTmiddleware, checkUserOwnership, userController.updateUser);
 
 

@@ -20,12 +20,13 @@ const getAllBookings = async (req, res) => {
             error: 'BOOKING_FETCH_ERROR'
         });
     }
-}
+};
 
 const createBooking = async (req, res) => {
     try {
         const bookingData = req.body;
-        const newBooking = await bookingsService.addBooking(bookingData);
+        const userId = req.user.id
+        const newBooking = await bookingsService.addBooking(bookingData, userId);
         
         res.status(201).json({
             success: true,
@@ -39,13 +40,13 @@ const createBooking = async (req, res) => {
             error: 'BOOKING_CREATE_ERROR'
         });
     }
-}
+};
 
-updateBookingStatus = async (req, res) => {
+const updateBookingStatus = async (req, res) => {
     try {
         const {status} = req.body;
-        const id = req.params.id;
-        const updatedBooking = await bookingsService.updateBookingStatus(id, status);
+        const bookingId = req.params.id;
+        const updatedBooking = await bookingsService.updateBookingStatus(bookingId, status);
         res.status(200).json({
             success: true,
             message: 'Booking status updated successfully',
@@ -60,10 +61,10 @@ updateBookingStatus = async (req, res) => {
     }
 }
 
-deleteBooking = async (req, res) => {
+const deleteBooking = async (req, res) => {
     try {
-        const bookingData = req.body;
-        const deletedBooking = await bookingsService.deleteBooking(bookingData);
+        const bookingId = req.params.id;
+        const deletedBooking = await bookingsService.deleteBooking(bookingId);
         res.status(200).json({
             success: true,
             message: 'Booking deleted successfully',
@@ -76,6 +77,6 @@ deleteBooking = async (req, res) => {
             error: 'BOOKING_DELETE_ERROR'
         });
     }
-}
+};
 
 module.exports = {getAllBookings, createBooking, updateBookingStatus, deleteBooking};
