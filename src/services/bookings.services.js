@@ -78,6 +78,7 @@ const addBooking = async (bookingData, userId) => {
       ...bookingData,
       userId: userId
     }
+
     const newBooking = await bookingsProvider.createBookingInDB(completedBookingData);
     
     await courtScheduleProvider.updateCourtScheduleStatusInDB(
@@ -123,23 +124,28 @@ const updateBookingStatus = async (bookingId, status, userRole) => {
 
 
 const deleteBooking = async (bookingId) => {
-  // para eliminar una reserva debe tener status = completed
   const bookingToDelete = await bookingsProvider.getBookingsFromDB({ 
     bookingId, 
     single: true 
   });
+
   if (!bookingToDelete) {
     throw new Error("Booking not found");
   }
-  if(bookingToDelete.status === "completed"){
+
+  if (bookingToDelete.status !== "completed") {
+    throw new Error("Solo las reservas completadas pueden eliminarse.");
+  }
+
   await bookingsProvider.deleteBookingInDB(bookingId);
-  
+
   await courtScheduleProvider.updateCourtScheduleStatusInDB(
     bookingToDelete.courtScheduleId,
     "available"
   );
-}
+
   return bookingToDelete;
 };
+
 
 module.exports = { fetchAllBookings, addBooking, updateBookingStatus, deleteBooking};

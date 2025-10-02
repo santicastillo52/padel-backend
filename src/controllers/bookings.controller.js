@@ -27,7 +27,6 @@ const createBooking = async (req, res) => {
         const bookingData = req.body;
         const userId = req.user.id
         const newBooking = await bookingsService.addBooking(bookingData, userId);
-        
         res.status(201).json({
             success: true,
             message: 'Booking created successfully',

@@ -1,0 +1,8 @@
+---
+alwaysApply: true
+---
+
+
+-Cada funcion debe incluir un bloque de codigo JSDoc encima. 
+-No modificar el codigo a menos que yo lo pida. 
+-Antes de implementar el codigo, quiero que me des 3 tipos de codigo de la misma funcionalidad basandote en como lo haria un junior, un semisenior y un senior. 

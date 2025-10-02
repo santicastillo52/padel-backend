@@ -5,7 +5,7 @@ const bookingSchema = Joi.object({
 });
 
 const bookingCreateSchema = Joi.object({
-    date: Joi.date().iso().required(),
+    date: Joi.string().required(),
     courtId: Joi.number().integer().positive().required(),
     courtScheduleId: Joi.number().integer().positive().required(),
     clubId: Joi.number().integer().positive().required(),
