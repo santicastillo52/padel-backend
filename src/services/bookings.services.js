@@ -70,9 +70,11 @@ const addBooking = async (bookingData, userId) => {
         single: true
       });
 
-    if (existingBooking) {
+    if (existingBooking && (existingBooking.status === 'pending' || existingBooking.status === 'confirmed')) {
       throw new Error("Ya existe una reserva para ese horario y fecha.");
     }
+
+
 
     const completedBookingData = {
       ...bookingData,
@@ -113,11 +115,13 @@ const updateBookingStatus = async (bookingId, status, userRole) => {
   
   const updatedBooking = await bookingsProvider.updateBookingStatusInDB(bookingId, status);
 
-  // Liberar courtSchedule automáticamente
+ // Solo liberar courtSchedule si se cancela la reserva
+ if (status === 'cancelled') {
   await courtScheduleProvider.updateCourtScheduleStatusInDB(
     updatedBooking.courtScheduleId, 
     "available"
   );
+}
   
   return updatedBooking;
 };

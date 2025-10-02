@@ -15,7 +15,7 @@ const authService = require('../services/auth.services');
 const login = async (req, res, next) => {
   passport.authenticate('local', async (err, user, info) => {
     if (err) return next(err);
-    if (!user) return res.status(401).json({ message: 'El usuario no existe' });
+    if (!user) return res.status(401).json({ message: 'El usuario o contraseña son incorrectos' });
 
     
       const token = jwt.generateToken({
