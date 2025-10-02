@@ -1,5 +1,6 @@
 const express = require('express');
 const authController = require('../controllers/auth.controller');
+const {loginLimiter} = require('../middlewares/rateLimitMdw')
 const validator = require('../middlewares/validatorJoiMdw');
 const { loginUserSchema, registerUserSchema } = require('../schemas/auth');
 
@@ -23,7 +24,7 @@ const router = express.Router();
  *       200: { description: OK }
  *       401: { description: El usuario no existe }
  */
-router.post('/login', validator(loginUserSchema), authController.login);
+router.post('/login', loginLimiter, validator(loginUserSchema), authController.login);
 
 /**
  * @swagger
