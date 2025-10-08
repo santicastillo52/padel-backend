@@ -11,7 +11,7 @@ const sequelize = require('../config/database');
  * @returns {Promise<Array<Object>>} - Lista de clubes que coinciden con los filtros.
  */
 
-fetchAllClubs = async (filters) => {
+const fetchAllClubs = async (filters) => {
   return await clubProvider.getClubsFromDB(filters);
 };
 
@@ -22,7 +22,7 @@ fetchAllClubs = async (filters) => {
  */
 
 
-fetchDropdownClubs = async () => {
+const fetchDropdownClubs = async () => {
   return await clubProvider.getDropdownClubsFromDB();
 };
 /**
@@ -33,7 +33,7 @@ fetchDropdownClubs = async () => {
  * @throws {Error} - Si no se encuentra el club.
  */
 
-fetchOneClub = async (id) => {
+const fetchOneClub = async (id) => {
   return await clubProvider.getOneClubFromDB(id);
 };
 /**
@@ -44,7 +44,7 @@ fetchOneClub = async (id) => {
  * @throws {Error} - Si no se encuentra el club.
  */
 
-fetchMyClub = async (id) => {
+const fetchMyClub = async (id) => {
   return await clubProvider.getMyClubFromDB(id);
 };
 
@@ -55,38 +55,34 @@ fetchMyClub = async (id) => {
  * @param {string} clubData.name - Nombre del club.
  * @param {string} clubData.location - Ubicación del club.
  * @param {number} clubData.UserId - ID del usuario dueño del club.
+ * @param {file} file - imagen del club.
  *
  * @returns {Promise<Object>} - Club creado exitosamente.
  * @throws {Error} - Si el usuario ya tiene un club registrado.
  */
 
-createClub = async (clubData, file) => {
- 
-  
+
+const createClub = async (clubData, file) => {
   const t = await sequelize.transaction();
   
-  try {
+  // Generar filename UNA SOLA VEZ (antes del try)
+  const filename = `${Date.now()}_${file.originalname}`;
+  const filePath = path.join(__dirname, '../../uploads', filename);
   
+  try {
     const userId = parseInt(clubData.UserId);
     const existingClub = await clubProvider.findClubByUserId(userId);
     if (existingClub) {
       throw new Error("Este usuario ya tiene un club");
     }
 
-   
-    if (!file) {
-      throw new Error('There is no image');
-    }
-
-
+    // Crear club en BD con transacción
     const newClub = await clubProvider.createClubInDB(clubData, t);
 
-   
-    const filename = `${Date.now()}_${file.originalname}`;
-    const filePath = path.join(__dirname, '../../uploads', filename);
+    // Guardar archivo físico
     await fs.writeFile(filePath, file.buffer);
 
-    
+    // Crear registro de imagen en BD con transacción
     const imageData = {
       file: { filename },
       type: 'club',
@@ -94,24 +90,20 @@ createClub = async (clubData, file) => {
     };
     await imageService.handleUpload(imageData, t);
 
- 
+    // Confirmar transacción
     await t.commit();
 
     return newClub;
 
   } catch (error) {
-  
+    // Cancelar transacción
     await t.rollback();
     
-    //Limpiar archivo si se guardó pero falló la transacción
-    if (file) {
-      const filename = `${Date.now()}_${file.originalname}`;
-      const filePath = path.join(__dirname, '../../uploads', filename);
-      try {
-        await fs.unlink(filePath);
-      } catch (unlinkError) {
-        console.error('Error eliminando archivo después de rollback:', unlinkError);
-      }
+    // Limpiar archivo físico si se guardó
+    try {
+      await fs.unlink(filePath);
+    } catch (unlinkError) {
+      console.error('Error eliminando archivo después de rollback:', unlinkError);
     }
     
     throw error;

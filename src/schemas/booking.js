@@ -19,6 +19,9 @@ const bookingUpdateSchema = Joi.object({
 
 const bookingId = Joi.object({
     id: Joi.number().integer().positive().required()
+});
+Joi.object({
+    id: Joi.number().integer().positive().required()
 })
 module.exports = {
     bookingSchema,

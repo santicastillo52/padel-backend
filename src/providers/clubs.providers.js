@@ -111,7 +111,7 @@ const getMyClubFromDB = async (id) => {
 
 const createClubInDB = async (clubData, transaction ) => {
  
-  const newClub = await Club.create(clubData, transaction);
+  const newClub = await Club.create(clubData, {transaction});
   return newClub;
 };
 

@@ -1,3 +1,4 @@
+const { Court, Image, Club } = require('../models');
 /**
  * Helpers para consultas de Sequelize
  * Contiene funciones reutilizables para includes y configuraciones de consultas
@@ -9,11 +10,11 @@
  */
 const getClubIncludes = () => [
   { 
-    model: require('../models').Court, 
+    model: Court, 
     attributes: ["id", "name", "wall_type", "court_type"],
     include: 
       {
-        model: require('../models').Image,
+        model: Image,
         where: { type: 'court' },
         required: false,
         attributes: ['id', 'url', 'type']
@@ -21,7 +22,7 @@ const getClubIncludes = () => [
     
   },
   {
-    model: require('../models').Image,
+    model: Image,
     where: { type: 'club' },
     required: false,
     attributes: ['id', 'url', 'type']
@@ -34,13 +35,13 @@ const getClubIncludes = () => [
  */
 const getCourtIncludes = () => [
   {
-    model: require('../models').Image,
+    model: Image,
     where: { type: 'court' },
     required: false,
     attributes: ['id', 'url', 'type']
   },
   {
-    model: require('../models').Club,
+    model: Club,
     attributes: ['id', 'name', 'location']
   }
 ];
@@ -51,12 +52,12 @@ const getCourtIncludes = () => [
  */
 const getImageIncludes = () => [
   {
-    model: require('../models').Court,
+    model: Court,
     attributes: ['id', 'name'],
     required: false
   },
   {
-    model: require('../models').Club,
+    model: Club,
     attributes: ['id', 'name'],
     required: false
   }

@@ -94,6 +94,18 @@ const addBooking = async (bookingData, userId) => {
   }
 };
 
+/**
+ * Actualiza el estado de una reserva existente.
+ *
+ * @param {number} bookingId - ID de la reserva a actualizar.
+ * @param {string} status - Nuevo estado de la reserva ('pending', 'confirmed', 'cancelled', 'completed').
+ * @param {string} userRole - Rol del usuario que realiza la actualización ('admin' o 'client').
+ *
+ * @returns {Promise<Object>} - Reserva actualizada exitosamente.
+ *
+ * @throws {Error} - Si el cliente intenta cancelar con menos de 12 horas de anticipación.
+ * @throws {Error} - Si ocurre un error al actualizar el estado de la reserva.
+ */
 const updateBookingStatus = async (bookingId, status, userRole) => {
   if(status === 'cancelled' && userRole === "client"){
     const booking = await bookingsProvider.getBookingsFromDB({ 
@@ -127,6 +139,17 @@ const updateBookingStatus = async (bookingId, status, userRole) => {
 };
 
 
+/**
+ * Elimina una reserva de la base de datos.
+ *
+ * @param {number} bookingId - ID de la reserva a eliminar.
+ *
+ * @returns {Promise<Object>} - Datos de la reserva eliminada.
+ *
+ * @throws {Error} - Si la reserva no existe.
+ * @throws {Error} - Si la reserva no está en estado 'completed' (solo las reservas completadas pueden eliminarse).
+ * @throws {Error} - Si ocurre un error al eliminar la reserva.
+ */
 const deleteBooking = async (bookingId) => {
   const bookingToDelete = await bookingsProvider.getBookingsFromDB({ 
     bookingId, 
