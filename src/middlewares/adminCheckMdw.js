@@ -47,6 +47,72 @@ const checkCourtOwnership = async (req, res, next) => {
   next();
 };
 
+const checkClubOwnershipForCourts = async (req, res, next) => {
+  const authenticatedUserId = req.user.id;
+  let courts = [];
+  
+  // Verificar que req.body existe
+  if (!req.body) {
+    return res.status(400).json({ 
+      success: false,
+      message: 'No se recibieron datos en el cuerpo de la petición',
+      error: 'VALIDATION_ERROR'
+    });
+  }
+  
+  // Extraer las canchas del body
+  if (req.body.courts && Array.isArray(req.body.courts)) {
+    courts = req.body.courts;
+  } else {
+    // Procesar campos con índices (formato plano) solo si req.body existe
+    Object.keys(req.body).forEach(key => {
+      const match = key.match(/courts\[(\d+)\]\[(\w+)\]/);
+      if (match) {
+        const [, index, field] = match;
+        if (!courts[index]) courts[index] = {};
+        courts[index][field] = req.body[key];
+      }
+    });
+  }
+  
+  if (courts.length === 0) {
+    return res.status(400).json({ 
+      message: 'No se enviaron canchas para crear',
+      error: 'VALIDATION_ERROR'
+    });
+  }
+  
+  // Obtener todos los clubIds
+  const clubIds = courts.map(court => parseInt(court.clubId));
+  
+  // Verificar que todos sean iguales
+  const uniqueClubIds = [...new Set(clubIds)];
+  if (uniqueClubIds.length > 1) {
+    return res.status(400).json({ 
+      message: 'Todas las canchas deben pertenecer al mismo club',
+      error: 'VALIDATION_ERROR'
+    });
+  }
+  
+  // Verificar que el usuario sea dueño del club
+  const clubId = uniqueClubIds[0];
+  const club = await Club.findOne({
+    where: { id: clubId, UserId: authenticatedUserId }
+  });
+  
+  if (!club) {
+    return res.status(403).json({ 
+      message: 'No tienes permisos para crear canchas en este club',
+      error: 'FORBIDDEN_ACCESS'
+    });
+  }
+  
+  // Pasar las canchas procesadas al controller para evitar duplicación
+  req.processedCourts = courts;
+  
+  next();
+};
+
 const checkImageOwnership = async (req, res, next) => {
   const authenticatedUserId = req.user.id;
   const imageId = parseInt(req.params.id);
@@ -100,4 +166,4 @@ const checkImageOwnership = async (req, res, next) => {
   }
 };
 
-module.exports = { ownerCheck, checkClubOwnership, checkCourtOwnership, checkImageOwnership }
+module.exports = { ownerCheck, checkClubOwnership, checkCourtOwnership, checkClubOwnershipForCourts, checkImageOwnership }

@@ -1,99 +1,166 @@
 const courtsService = require('../services/courts.services');
+const { createCourtsSchema, validateCourtImages } = require('../schemas/courts');
 
-getAllCourts = async (req, res) => {
+/**
+ * Obtiene todas las canchas aplicando filtros opcionales desde la query string.
+ *
+ * @param {Object} req - Objeto request de Express.
+ * @param {Object} req.query - Filtros opcionales (name, wall_type, court_type, clubId).
+ * @param {Object} res - Objeto response de Express.
+ * @returns {Promise<void>} Responde con un JSON que contiene las canchas encontradas.
+ */
+const getAllCourts = async (req, res) => {
     try {
         const filters = req.query;  
         const courts = await courtsService.fetchAllCourts(filters);
         
-        res.status(200).json(courts);
+        res.status(200).json({
+            success: true,
+            message: 'Courts retrieved successfully',
+            data: courts
+        });
     } catch (error) {
         console.error('Error fetching courts:', error);
-        res.status(500).json({ message: error.message || ' Error fetching court'
-         });
+        res.status(500).json({ 
+            success: false,
+            message: error.message || 'Error fetching courts',
+            error: 'COURTS_FETCH_ERROR'
+        });
     }
 }
 
-getAvailableCourts = async (req, res) => {
+/**
+ * Obtiene las canchas disponibles con sus horarios próximos desde hoy hasta el día anterior de la próxima semana.
+ *
+ * @param {Object} req - Objeto request de Express.
+ * @param {Object} req.query - Filtros opcionales (day_of_week, start_time, end_time, clubId, wall_type, court_type).
+ * @param {Object} res - Objeto response de Express.
+ * @returns {Promise<void>} Responde con un JSON que contiene las canchas disponibles con sus horarios.
+ */
+const getAvailableCourts = async (req, res) => {
     try {
         const filters = req.query;
         const availableCourts = await courtsService.fetchAvailableCourts(filters);
         
-        res.status(200).json(availableCourts);
+        res.status(200).json({
+            success: true,
+            message: 'Available courts retrieved successfully',
+            data: availableCourts
+        });
     } catch (error) {
         console.error('Error fetching available courts:', error);
-        res.status(500).json({ message: error.message || 'Error fetching available courts' });
+        res.status(500).json({ 
+            success: false,
+            message: error.message || 'Error fetching available courts',
+            error: 'AVAILABLE_COURTS_FETCH_ERROR'
+        });
     }
 }
 
-getCourtById = async (req, res) => {
+const getCourtById = async (req, res) => {
     try{
         const courtId = req.params.id;
         const court = await courtsService.fetchCourtById(courtId);
-        res.status(200).json(court);
+        res.status(200).json({
+            success: true,
+            message: 'Court retrieved successfully',
+            data: court
+        });
     }
     catch (error) {
-        res.status(500).json({ message: error.message || ' Error fetching court' });
+        console.error('Error fetching court:', error);
+        res.status(500).json({ 
+            success: false,
+            message: error.message || 'Error fetching court',
+            error: 'COURT_FETCH_ERROR'
+        });
     }
 }
 
- createCourts = async (req, res) => {
+const createCourts = async (req, res) => {
     try {
-        // Extraer canchas del form-data
-        let courts = [];
+        // Usar las canchas ya procesadas por el middleware
+        const courts = req.processedCourts || [];
         const files = req.files || [];
         const userId = req.user.id;
         
-        // Verificar si los datos vienen en formato anidado
-        if (req.body.courts && Array.isArray(req.body.courts)) {
-            courts = req.body.courts;
-        } else {
-            // Procesar campos con índices (formato plano)
-            Object.keys(req.body).forEach(key => {
-                const match = key.match(/courts\[(\d+)\]\[(\w+)\]/);
-                if (match) {
-                    const [, index, field] = match;
-                    if (!courts[index]) courts[index] = {};
-                    courts[index][field] = req.body[key];
-                }
+        // Validar datos con Joi (convierte automáticamente clubId a número)
+        const { error, value } = createCourtsSchema.validate({ courts });
+        if (error) {
+            return res.status(400).json({
+                success: false,
+                message: error.details[0].message,
+                error: 'VALIDATION_ERROR'
             });
         }
         
-        // Convertir clubId a número
-        courts.forEach(court => {
-            if (court.clubId) {
-                court.clubId = parseInt(court.clubId);
-            }
+        // Usar los datos ya validados y convertidos por Joi
+        const validatedCourts = value.courts;
+        
+        // Validar imágenes
+        try {
+            validateCourtImages(files, validatedCourts.length);
+        } catch (validationError) {
+            return res.status(400).json({
+                success: false,
+                message: validationError.message,
+                error: 'IMAGE_VALIDATION_ERROR'
+            });
+        }
+        
+        const newCourts = await courtsService.addNewCourts(validatedCourts, files, userId);
+        
+        res.status(201).json({
+            success: true,
+            message: 'Courts created successfully',
+            data: newCourts
         });
-        
-        const newCourts = await courtsService.addNewCourts(courts, files, userId);
-        
-        res.status(201).json(newCourts);
     } catch (error) {
         console.error('Error creating court:', error);
-        res.status(500).json({ message: error.message || 'Error creating court'});
+        res.status(500).json({ 
+            success: false,
+            message: error.message || 'Error creating court',
+            error: 'COURT_CREATE_ERROR'
+        });
     }
 }
 
-editCourt =  async (req, res) => {
+const editCourt =  async (req, res) => {
     try {
         const courtId =  req.params.id;
         const courtData = req.body;
         const updatedCourt =  await courtsService.editCourt(courtId, courtData)
-        res.status(200).json(updatedCourt);
+        res.status(200).json({
+            success: true,
+            message: 'Court updated successfully',
+            data: updatedCourt
+        });
     } catch (error){
         console.error('Error editing court: ', error);
-        res.status(500).json({ message: error.message || 'Error editing court'})
+        res.status(500).json({ 
+            success: false,
+            message: error.message || 'Error editing court',
+            error: 'COURT_UPDATE_ERROR'
+        });
     }
 }
 
-deleteCourt =  async (req, res) => {
+const deleteCourt =  async (req, res) => {
     try {
         const courtId = req.params.id;
         const deletedCourt =  await courtsService.deleteCourt(courtId);
-        res.status(200).json(deletedCourt);
+        res.status(200).json({
+            success: true,
+            message: 'Court deleted successfully',
+            data: deletedCourt
+        });
     } catch (error){
         console.error('Error deleting court' , error);
-        res.status(500).json({message: message.error || 'Error deleting court'});
+        res.status(500).json({ 
+            success: false,
+            message: error.message || 'Error deleting court',
+            error: 'COURT_DELETE_ERROR'
+        });
     }
 }
 

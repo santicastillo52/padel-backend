@@ -39,7 +39,7 @@ app.use(userRoutes);
 app.use('/clubs', clubsRoutes);
 app.use('/bookings',bookingsRoutes);
 app.use(courtSchedulesRoutes);
-app.use(courtsRoutes);
+app.use('/courts',courtsRoutes);
 app.use(imagesRoutes);
 
 module.exports = app;

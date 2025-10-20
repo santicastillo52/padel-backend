@@ -130,7 +130,7 @@ const fetchCourtById = async (courtId) => {
  * @throws {Error} Si ya existe una cancha con el mismo nombre en el club especificado.
  * @throws {Error} Si ocurre un error al crear una cancha en la base de datos.
  */
-//hay que reveer como enviamos el form data desde el frontend
+
 const addNewCourts = async (courtList, files, userId) => {
   const t = await sequelize.transaction();
   let uploadedFilePaths = [];
@@ -142,11 +142,7 @@ const addNewCourts = async (courtList, files, userId) => {
       const courtData = courtList[i];
       const file = files[i]; // Obtener el archivo correspondiente
       
-      // Verificar que el club pertenece al usuario autenticado
-      const club = await courtsProvider.findClubByIdAndUserId(courtData.clubId, userId, t);
-      if (!club) {
-        throw new Error(`No tienes permisos para crear canchas en el club con ID ${courtData.clubId}`);
-      }
+      // La verificación de propiedad del club ya se hizo en el middleware
       
       const existingCourt = await Court.findOne({
         where: {
@@ -207,10 +203,22 @@ const addNewCourts = async (courtList, files, userId) => {
  */
  
 const editCourt = async (courtId, courtData) => {
-  const existingCourt = await courtsProvider.findCourtByNameExcludingId(courtData.name, courtData.clubId, courtId);
+  const currentCourt = await courtsProvider.getCourtByIdFromDB(courtId);
+  
+  if (!currentCourt) {
+    throw new Error(`No se encontró la cancha con ID ${courtId}`);
+  }
+  
+  const existingCourt = await courtsProvider.findCourtByNameExcludingId(
+    courtData.name, 
+    currentCourt.clubId, 
+    courtId
+  );
+  
   if (existingCourt) {
-  throw new Error(`Ya existe una cancha con el nombre ${courtData.name} en este club`);
-}
+    throw new Error(`Ya existe una cancha con el nombre ${courtData.name} en este club`);
+  }
+  
   const updatedCourt = await courtsProvider.putCourtByIdFromDB(courtId, courtData);
   
   return updatedCourt;
@@ -224,9 +232,7 @@ const editCourt = async (courtId, courtData) => {
  */
 const deleteCourt =  async (courtId) => {
   const deletedCourt = await courtsProvider.deleteCourtFromDb(courtId);
-  if(!courtId){
-    throw new Error (`No se encontro Cancha con id: ${courtId}`);
-  }
+
   return deletedCourt;
  } 
 

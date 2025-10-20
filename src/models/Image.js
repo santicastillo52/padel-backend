@@ -26,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
   Image.associate = (models) => {
     Image.belongsTo(models.Court, {
       foreignKey: 'CourtId',
-      onDelete: 'SET NULL',
+      onDelete: 'CASCADE',
       onUpdate: 'CASCADE',
     });
 

@@ -5,7 +5,7 @@ const { uploadMemory } = require('../config/multer');
 const Image = require('../models/Image');
 const imageController = require('../controllers/images.controller');
 const JWTmiddleware = require('../middlewares/authMiddleware');
-const { checkImageOwnership } = require('../middlewares/adminCheckMDW');
+const { checkImageOwnership } = require('../middlewares/adminCheckMdw');
 
 router.get('/images', imageController.getAllImages);
 router.patch('/images/:id', JWTmiddleware, checkImageOwnership, uploadMemory.single('image'), imageController.updateImage);
