@@ -1,8 +1,20 @@
 const Joi = require('joi'); 
 
 const courtId = Joi.object({
-    id: Joi.number().integer().positive().required(),
+    id: Joi.number().integer().positive().required()
 });
+
+
+const courtFilters = Joi.object({
+    clubId: Joi.number().integer().positive().optional(),
+    wall_type: Joi.string().valid('acrylic', 'cement').optional(),
+    court_type: Joi.string().valid('outdoor', 'indoor').optional(),
+    day_of_week: Joi.string().valid('monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday').optional(),
+    start_time: Joi.string()
+        .pattern(/^([0-1][0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/)
+        .optional(),
+})
+
 
 const singleCourtSchema = Joi.object({
     name: Joi.string().min(3).max(100).required(),
@@ -58,6 +70,7 @@ const validateCourtImages = (files, courtsLength) => {
 
 module.exports = {
     courtId,
+    courtFilters,
     createCourtsSchema,
     updatedCourtSchema,
     validateCourtImages

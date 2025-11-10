@@ -4,7 +4,7 @@ const { uploadMemory } = require('../config/multer');
 const JWTmiddleware = require('../middlewares/authMiddleware');
 const { checkCourtOwnership, checkClubOwnershipForCourts } = require('../middlewares/adminCheckMdw');
 const validator = require('../middlewares/validatorJoiMdw');
-const {courtId, updatedCourtSchema} = require('../schemas/courts');
+const {courtId, courtFilters, updatedCourtSchema} = require('../schemas/courts');
 const router = express.Router();
 
 /**
@@ -99,7 +99,7 @@ router.get('/', JWTmiddleware, checkCourtOwnership, courtsController.getAllCourt
  *       500:
  *         description: Error del servidor
  */
-router.get('/available', JWTmiddleware,  courtsController.getAvailableCourts);
+router.get('/available', JWTmiddleware, validator(courtFilters, 'query'), courtsController.getAvailableCourts);
 /**
  * @swagger
  * /courts/{id}:

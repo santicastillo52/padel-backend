@@ -1,4 +1,4 @@
-const { Club, Court, Image } = require('../models');
+const { Club, Court, CourtSchedule, Image } = require('../models');
 
 
 const ownerCheck = (req, res, next) => {
@@ -29,12 +29,13 @@ const checkClubOwnership = async (req, res, next) => {
   next();
 };
 
+
 const checkCourtOwnership = async (req, res, next) => {
   const authenticatedUserId = req.user.id;        
   const courtId = parseInt(req.params.id);      
   
   const court = await Court.findByPk(courtId, {
-    include: [{ model: Club, where: { UserId: authenticatedUserId } }]
+    include: [{ model: Club, required: true, where: { UserId: authenticatedUserId } }]
   });
   
   if (!court) {
@@ -46,7 +47,7 @@ const checkCourtOwnership = async (req, res, next) => {
   
   next();
 };
-
+  
 const checkClubOwnershipForCourts = async (req, res, next) => {
   const authenticatedUserId = req.user.id;
   let courts = [];
@@ -113,6 +114,32 @@ const checkClubOwnershipForCourts = async (req, res, next) => {
   next();
 };
 
+const checkScheduleOwnership = async (req, res, next) => {
+  const authenticatedUserId = req.user.id;        
+  const scheduleId = parseInt(req.params.id);      
+  
+  const schedule = await CourtSchedule.findByPk(scheduleId, {
+    include: [{
+      model: Court,
+      required: true, 
+      include: [{
+        model: Club,
+        required: true,  
+        where: { UserId: authenticatedUserId }
+      }]
+    }]
+  });
+  
+  if (!schedule) {
+    return res.status(403).json({ 
+      message: 'No puedes eliminar este horario',
+      error: 'FORBIDDEN_ACCESS'
+    });
+  }
+  
+  next();
+};
+
 const checkImageOwnership = async (req, res, next) => {
   const authenticatedUserId = req.user.id;
   const imageId = parseInt(req.params.id);
@@ -166,4 +193,4 @@ const checkImageOwnership = async (req, res, next) => {
   }
 };
 
-module.exports = { ownerCheck, checkClubOwnership, checkCourtOwnership, checkClubOwnershipForCourts, checkImageOwnership }
+module.exports = { ownerCheck, checkClubOwnership, checkCourtOwnership, checkClubOwnershipForCourts, checkScheduleOwnership,checkImageOwnership }

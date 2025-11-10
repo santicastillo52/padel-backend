@@ -10,7 +10,7 @@ const { Op } = require('sequelize');
  *
  * @returns {Promise<Array<Object>>} - Lista de canchas que coinciden con los filtros, incluyendo el nombre del club asociado.
  */
-getCourtsFromDB = async (filters = {}) => {
+const getCourtsFromDB = async (filters = {}) => {
   const where = {};
 
   if (filters.name) {
@@ -36,7 +36,7 @@ getCourtsFromDB = async (filters = {}) => {
 };
 
 
-getAvailableCourtsFromDB = async (filters = {}) => {
+const getAvailableCourtsFromDB = async (filters = {}) => {
   const { day_of_week, start_time, end_time, clubId, wall_type, court_type } = filters;
   
   const where = {};
@@ -98,7 +98,7 @@ getAvailableCourtsFromDB = async (filters = {}) => {
  * @returns {Promise<Object>} - Objeto que representa la cancha encontrada, incluyendo el nombre del club asociado y los horarios de la cancha.
  * 
  */
-getCourtByIdFromDB = async (courtId, transaction = null) => {
+const getCourtByIdFromDB = async (courtId, transaction = null) => {
   const options = {
     where: { id: courtId },
     include: [
@@ -128,7 +128,7 @@ getCourtByIdFromDB = async (courtId, transaction = null) => {
  * @returns {Promise<Object>} - Objeto cancha creada.
  */
 
-createCourtInDB = async (data, transaction)  => {
+const createCourtInDB = async (data, transaction)  => {
 
   const { name, wall_type, court_type, clubId } = data;
   return Court.create({ name, wall_type, court_type, clubId }, { transaction });
@@ -141,7 +141,7 @@ createCourtInDB = async (data, transaction)  => {
  * @param {number} excludeId - id De la cancha que hay que excluir de la busqueda
  */
 
-findCourtByNameExcludingId = async (name, clubId, excludeId) => {
+const findCourtByNameExcludingId = async (name, clubId, excludeId) => {
   return Court.findOne({
     where: {
       name, 
@@ -159,7 +159,7 @@ findCourtByNameExcludingId = async (name, clubId, excludeId) => {
  * @param {string} courtData.court_type - Tipo de cancha ("indoor" o "outdoor").
  * @returns {Promise<Object>} - Objeto cancha editada.
  */
-putCourtByIdFromDB = async(courtId, courtData) => {
+const putCourtByIdFromDB = async(courtId, courtData) => {
    await Court.update(courtData, {
     where: {id: courtId}
   })
@@ -172,7 +172,7 @@ putCourtByIdFromDB = async(courtId, courtData) => {
  * @throws {error} - si no existe court
  * @returns {Promise<Object>} - Cancha eliminada
  */
-deleteCourtFromDb = async (courtId) => {
+const deleteCourtFromDb = async (courtId) => {
   const courtToDelete = await Court.findByPk(courtId);
   if(!courtToDelete){
     throw new Error (`No se encontró el cancha con ID: ${courtId}`)

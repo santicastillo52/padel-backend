@@ -1,6 +1,6 @@
 const courtScheduleProvider = require("../providers/courtsSchedules.providers");
 const { Court, sequelize } = require("../models");
-const { parse } = require("dotenv");
+
 
 /**
  * Obtiene todos los horarios de canchas que cumplen con los filtros.
@@ -28,10 +28,8 @@ const fetchAllCourtsSchedules = async (filters = {}) => {
  *
  * @returns {Promise<Array<Object>>} - Lista de horarios creados exitosamente.
  */
-const createCourtsSchedules = async (scheduleData, id, userId) => {
+const createCourtsSchedules = async (scheduleData, courtId, userId) => {
  
-  const courtId = parseInt(id);
-  console.log(typeof courtId);
 
   if (!Array.isArray(scheduleData) || scheduleData.length === 0) {
     throw new Error("scheduleData debe ser un array.");
@@ -41,20 +39,22 @@ const createCourtsSchedules = async (scheduleData, id, userId) => {
   try {
   const createdSchedules = [];
 
+   //Verificar que la cancha existe y pertenece al usuario
+   const court = await Court.findByPk(courtId, {
+    include: [{
+      model: sequelize.models.Club,
+      where: { UserId: userId }
+    }]
+  });
+
+  if (!court) {
+    throw new Error(`La cancha con ID: ${courtId} no existe o no te pertenece.`);
+  }
+
   for (const schedule of scheduleData) {
     const { day_of_week, start_time, end_time } = schedule;
 
-    //Verificar que la cancha existe y pertenece al usuario
-    const court = await Court.findByPk(courtId, {
-      include: [{
-        model: sequelize.models.Club,
-        where: { UserId: userId }
-      }]
-    });
-
-    if (!court) {
-      throw new Error(`La cancha con ID: ${courtId} no existe o no te pertenece.`);
-    }
+   
 
     if (start_time >= end_time) {
       throw new Error("start_time debe ser menor que end_time.");
@@ -100,7 +100,6 @@ const createCourtsSchedules = async (scheduleData, id, userId) => {
  * @returns {Promise<Object>} - Horario eliminado.
  */
 const deleteCourtSchedule = async (id, userId) => {
-  // Verificar que el schedule existe y pertenece al usuario
   const schedule = await courtScheduleProvider.getCourtScheduleWithOwnership(id, userId);
   
   if (!schedule) {
