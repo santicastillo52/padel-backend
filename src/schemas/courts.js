@@ -39,12 +39,7 @@ const updatedCourtSchema = Joi.object({
     available: Joi.boolean().optional()
 });
 
-/**
- * Validación de archivos de imagen para canchas
- * @param {Array} files - Array de archivos de Multer
- * @param {number} courtsLength - Cantidad de canchas a crear
- * @throws {Error} Si la validación falla
- */
+
 const validateCourtImages = (files, courtsLength) => {
     if (!files || files.length === 0) {
         throw new Error('Debe proporcionar al menos una imagen');
