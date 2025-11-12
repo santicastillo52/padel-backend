@@ -34,7 +34,12 @@ const fetchDropdownClubs = async () => {
  */
 
 const fetchOneClub = async (id) => {
-  return await clubProvider.getOneClubFromDB(id);
+  const club = await clubProvider.getOneClubFromDB(id);
+  if(club){
+    return club
+  } else {
+    throw new Error('No se encontro club.');
+  }
 };
 /**
  * Obtiene el club asociado a un usuario específico.
@@ -45,7 +50,12 @@ const fetchOneClub = async (id) => {
  */
 
 const fetchMyClub = async (id) => {
-  return await clubProvider.getMyClubFromDB(id);
+  const club = await clubProvider.getMyClubFromDB(id);
+  if(club){
+    return club
+  } else {
+    throw new Error('No se encontro club.');
+  }
 };
 
 /**

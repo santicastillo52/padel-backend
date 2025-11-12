@@ -17,7 +17,12 @@ fetchAllUsers = async (filters) => {
  */
 
 fetchUserById = async (userId) => {
-    return await userProvider.getUserByIdFromDB(userId);
+    const user = await userProvider.getUserByIdFromDB(userId);
+    if(user){
+        return user
+    } else {
+        throw new Error('No se encontro usuario.');
+    }
 }
 
 /**

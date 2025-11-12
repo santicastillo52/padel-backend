@@ -35,7 +35,7 @@ app.get("/", (req, res) => {
 });
 
 app.use('/auth', loginRoutes);
-app.use(userRoutes);
+app.use('/users',userRoutes);
 app.use('/clubs', clubsRoutes);
 app.use('/bookings', bookingsRoutes);
 app.use('/schedules', courtSchedulesRoutes);

@@ -61,7 +61,6 @@ router.get('/', courtsSchedulesController.getAllCourtsSchedules);
  *         description: No autenticado
  *       403:
  *         description: Sin permisos para la cancha
- *     responses:
  *       500:
  *         description: Error del servidor
  */
