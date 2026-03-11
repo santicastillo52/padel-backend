@@ -13,7 +13,10 @@ const courtFilters = Joi.object({
     start_time: Joi.string()
         .pattern(/^([0-1][0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/)
         .optional(),
-})
+    end_time: Joi.string()
+    .pattern(/^([0-1][0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/)
+    .optional(),
+});
 
 
 const singleCourtSchema = Joi.object({
